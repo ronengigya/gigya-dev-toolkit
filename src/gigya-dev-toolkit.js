@@ -46,7 +46,7 @@ const toolkit = co.wrap(function *executeInner(
     // Only prompt for partner ID if more than one available
     // This prevents users from needing to enter their partner ID in the common use-case where they have only one account linked
     if(allPartnerSites.length === 1) {
-      partnerId = partners[0].partnerID;
+      partnerId = allPartnerSites[0].partnerID;
     } else if(allPartnerSites.length <= 10) {
       // User has less than 10 partner IDs linked
       // Choose from list
