@@ -92,7 +92,7 @@ class GigyaDataservice {
       params.userKey = userKey;
       params.secret = userSecret;
 
-      // Serialize objects as JSON
+      // Serialize objects as JSON strings
       _.each(params, (param, key) => {
         if(_.isObject(param)) {
           params[key] = JSON.stringify(param);
