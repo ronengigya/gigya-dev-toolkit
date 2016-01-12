@@ -7,9 +7,10 @@ const url = require('url');
 const port = process.env.PORT || 5050;
 
 // Express web server
+const payloadLimit = '5mb';
 const app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(bodyParser.json({ limit: payloadLimit }));
+app.use(bodyParser.urlencoded({ extended: true, limit: payloadLimit })); 
 
 // Serve index.html and associated files
 app.use(express.static(__dirname + '/build.browser'));
