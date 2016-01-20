@@ -1,6 +1,5 @@
 'use strict';
 
-global.regeneratorRuntime = require('regenerator/runtime');
 const state = require('commander');
 const _ = require('lodash');
 const colors = require('colors');

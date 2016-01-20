@@ -23,13 +23,13 @@ class GigyaDataservice {
       // We don't save these to the file because they never change
       delete schema.profileSchema.unique;
       delete schema.profileSchema.dynamicSchema;
-      _.each(schema.profileSchema.fields, (field, key) => {
+      for(const field of schema.profileSchema.fields) {
         delete field.arrayOp;
         delete field.allowNull;
         delete field.type;
         delete field.encrypt;
         delete field.format;
-      });
+      }
 
       // Cannot set empty unique field on dataSchema or error
       if(schema.dataSchema.unique && _.isArray(schema.dataSchema.unique) && schema.dataSchema.unique.length === 0) {
@@ -37,11 +37,12 @@ class GigyaDataservice {
       }
 
       // Remove fields from dataSchema that do not have a type
-      _.each(schema.dataSchema.fields, (field, key) => {
+      for(const key in schema.dataSchema.fields) {
+        const field = schema.dataSchema.fields[key];
         if(!field.type) {
           delete schema.dataSchema.fields[key];
         }
-      });
+      }
 
       return schema;
     } });
