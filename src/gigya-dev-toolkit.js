@@ -1,19 +1,12 @@
 'use strict';
 
-const co = require('co');
 const _ = require('lodash');
 const GigyaDataservice = require('./dataservices/gigya.dataservice');
 const writeFile = require('./helpers/write-file');
 const readFile = require('./helpers/read-file');
 const jsdiff = require('diff');
 
-const toolkit = co.wrap(function *executeInner(
-  { userKey, userSecret, task, settings, partnerId, sourceFile, sourceApiKey, destinationApiKeys }) {
-  // Used in for() loops
-  // Can be better to avoid loops that call functions to preserve use of yield
-  let i;
-  let ii;
-
+const toolkit = async function({ userKey, userSecret, task, settings, partnerId, sourceFile, sourceApiKey, destinationApiKeys }) {
   // Gigya credentials needed to access API
   if(!userKey || !userSecret) {
     return {
@@ -39,7 +32,7 @@ const toolkit = co.wrap(function *executeInner(
 
   // In cases where user has access to many partners, will not return all partners
   // Most users have a very limited number of sites, and we want to help them
-  const allPartnerSites = yield GigyaDataservice.fetchUserSites({ userKey, userSecret });
+  const allPartnerSites = await GigyaDataservice.fetchUserSites({ userKey, userSecret });
 
   // Get partner ID
   if(!partnerId) {
@@ -57,7 +50,7 @@ const toolkit = co.wrap(function *executeInner(
             name: 'partnerId',
             type: 'list',
             message: 'GIGYA_PARTNER_ID',
-            choices: _.pluck(allPartnerSites, 'partnerID')
+            choices: _.map(allPartnerSites, 'partnerID')
           }
         }
       };
@@ -81,23 +74,20 @@ const toolkit = co.wrap(function *executeInner(
   // Fetch all partner sites (not all partners + sites)
   // This also validates the partner ID exists
   // We'll first look for it in the array of all partners + sites we already have to save some time
-  let partnerSites;
-  let findPartner = _.filter(allPartnerSites, { partnerID: partnerId });
-  if(findPartner.length) {
-    partnerSites = findPartner;
-  } else {
-    partnerSites = yield GigyaDataservice.fetchUserSites({ userKey, userSecret, partnerId });
-  }
+  const findPartner = _.filter(allPartnerSites, { partnerID: partnerId });
+  const partnerSites = findPartner.length
+    ? findPartner
+    : await GigyaDataservice.fetchUserSites({ userKey, userSecret, partnerId });
 
   // Used to list sites on partner
   const sites = [];
-  _.each(partnerSites[0].sites, (site) => {
+  for(const site of partnerSites[0].sites) {
     // If the site breaks onto a second line it breaks my console, keep line length sane
     sites.push({
       name: `${site.apiKey} (${site.baseDomain}${site.description ? ', ' + site.description : ''})`,
       value: site.apiKey
     });
-  });
+  }
   
   if(!task) {
     return {
@@ -138,9 +128,9 @@ const toolkit = co.wrap(function *executeInner(
 
   // Looks at current setting and calls something like fetchSchema
   // operation = fetch or update
-  function *crud(operation, setting, params = {}) {
-    var method = `${operation}${setting.charAt(0).toUpperCase()}${setting.slice(1)}`;
-    return yield GigyaDataservice[method](_.merge({ userKey, userSecret }, params));
+  function crud(operation, setting, params = {}) {
+    const method = `${operation}${setting.charAt(0).toUpperCase()}${setting.slice(1)}`;
+    return GigyaDataservice[method](_.merge({ userKey, userSecret }, params));
   }
 
   switch(task) {
@@ -161,10 +151,10 @@ const toolkit = co.wrap(function *executeInner(
       }
 
       // Get data to write to file
-      for(i = 0; i < settings.length; i++) {
+      for(const setting of settings) {
         writeFile({
-          filePath: `${settings[i]}.${sourceApiKey}.${new Date().getTime()}.json`,
-          data: yield crud('fetch', settings[i], { apiKey: sourceApiKey })
+          filePath: `${setting}.${sourceApiKey}.${new Date().getTime()}.json`,
+          data: await crud('fetch', setting, { apiKey: sourceApiKey })
         });
       }
 
@@ -209,10 +199,10 @@ const toolkit = co.wrap(function *executeInner(
 
       // Fetch data from file, parse into JSON, and pass parameter into crud method
       // Parameter is either "schema", "screensets", or "policies"
-      const settingsData = JSON.parse(yield readFile({ file: sourceFile }));
-      for(i = 0; i < destinationApiKeys.length; i++) {
-        yield crud('update', settings, {
-          apiKey: destinationApiKeys[i],
+      const settingsData = JSON.parse(await readFile({ file: sourceFile }));
+      for(const destinationApiKey of destinationApiKeys) {
+        await crud('update', settings, {
+          apiKey: destinationApiKey,
           [settings]: settingsData
         });
       }
@@ -256,16 +246,16 @@ const toolkit = co.wrap(function *executeInner(
       }
 
       const fetchedSettings = {};
-      for(i = 0; i < settings.length; i++) {
-        fetchedSettings[settings[i]] = yield crud('fetch', settings[i], { apiKey: sourceApiKey });
+      for(const setting of settings) {
+        fetchedSettings[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
       }
 
       // Push settings from source into destination(s)
-      for(i = 0; i < destinationApiKeys.length; i++) {
-        for(ii = 0; ii < settings.length; ii++) {
-          yield crud('update', settings[ii], {
-            apiKey: destinationApiKeys[i],
-            [settings[ii]]: fetchedSettings[settings[ii]]
+      for(const destinationApiKey of destinationApiKeys) {
+        for(const setting of settings) {
+          await crud('update', setting, {
+            apiKey: destinationApiKey,
+            [setting]: fetchedSettings[setting]
           });
         }
       }
@@ -310,47 +300,37 @@ const toolkit = co.wrap(function *executeInner(
 
       const validations = [];
       const sourceObjs = {};
-      let diffs;
-      let diff;
-      let sourceObj;
-      let destinationObj;
-      let numAdded;
-      let numRemoved;
-      let numChanged;
-      let isDifferent;
 
-      for(i = 0; i < settings.length; i++) {
-        sourceObjs[settings[i]] = yield crud('fetch', settings[i], { apiKey: sourceApiKey });
+      for(const setting of settings) {
+        sourceObjs[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
       }
 
-      for(ii = 0; ii < destinationApiKeys.length; ii++) {
-        diffs = [];
-        for(i = 0; i < settings.length; i++) {
+      for(const destinationApiKey of destinationApiKeys) {
+        const diffs = [];
+        for(const setting of settings) {
           // Fetch objects and run jsdiff
-          sourceObj = sourceObjs[settings[i]];
-          destinationObj = yield crud('fetch', settings[i], { apiKey: destinationApiKeys[ii] });
-          diff = jsdiff.diffJson(sourceObj, destinationObj);
+          const sourceObj = sourceObjs[setting];
+          const destinationObj = await crud('fetch', setting, { apiKey: destinationApiKey });
+          const diff = jsdiff.diffJson(sourceObj, destinationObj);
 
           // Calculate stats
-          numAdded = 0;
-          numRemoved = 0;
-          diff.forEach((part) => {
+          let numAdded = 0;
+          let numRemoved = 0;
+          for(const part of diff) {
             if(part.added) {
               numAdded += part.count;
             } else if(part.removed) {
               numRemoved += part.count;
             }
-          });
-          numChanged = Math.min(numAdded, numRemoved);
+          }
+          let numChanged = Math.min(numAdded, numRemoved);
           numRemoved -= numChanged;
           numAdded -= numChanged;
-          isDifferent = numAdded || numRemoved || numChanged;
+          const isDifferent = numAdded || numRemoved || numChanged;
 
           // Abbreviate diff value if necessary, retains original value, creats new abbrValue index
           // Standardize newlines
-          diff.forEach((part) => {
-            let i;
-
+          for(const part of diff) {
             // Trim newlines at ends so we can ENSURE they exist consistently
             part.value = part.value.replace(/^[\r\n]+|[\r\n]+$/g, '') + "\n";
 
@@ -376,11 +356,11 @@ const toolkit = co.wrap(function *executeInner(
                 + valueLastHalf.replace(/^[\r\n]+|[\r\n]+$/g, '')
                 + "\r\n";
             }
-          });
+          }
     
           // This is what we're returning
           diffs.push({
-            setting: settings[i],
+            setting,
             diff,
             sourceObj,
             destinationObj,
@@ -391,7 +371,7 @@ const toolkit = co.wrap(function *executeInner(
           });
         }
 
-        validations.push({ diffs, site: _.find(partnerSites[0].sites, { apiKey: destinationApiKeys[ii] }) });
+        validations.push({ diffs, site: _.find(partnerSites[0].sites, { apiKey: destinationApiKey }) });
       }
 
       return {
@@ -400,6 +380,6 @@ const toolkit = co.wrap(function *executeInner(
       }
       break;
   }
-});
+}
 
 module.exports = toolkit;

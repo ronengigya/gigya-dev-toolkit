@@ -1,6 +1,7 @@
 'use strict';
 
 // TODO: We can separate this functionality into separate files for node/browser
+// TODO: Use async/await with mz/fs
 
 const fs = require('fs');
 const base64url = require('base64url');

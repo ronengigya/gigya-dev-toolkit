@@ -1,5 +1,6 @@
 'use strict';
 
+global.regeneratorRuntime = require('regenerator/runtime');
 const state = require('commander');
 const _ = require('lodash');
 const colors = require('colors');
@@ -36,7 +37,7 @@ function prompt({ questions }) {
   }
 
   // Mild transformation
-  _.each(questions, (question) => {
+  for(const question of questions) {
     // For type = "file", we want to list only files in the current working directory
     if(question.type === 'file') {
       question.type = 'list';
@@ -58,7 +59,9 @@ function prompt({ questions }) {
 
     // Typecast all choices as string (crashes otherwise)
     if(question.choices) {
-      _.each(question.choices, (value, key) => {
+      for(const key in question.choices) {
+        let value = question.choices[key];
+
         // Convert shorthand string to object format
         if(!_.isObject(value)) {
           question.choices[key] = value = { name: value, value };
@@ -79,11 +82,11 @@ function prompt({ questions }) {
         if(value.name.length > 83) {
           value.name = `${value.name.substr(0, 80)}...`;
         }
-      });
+      }
     }
-  });
+  }
 
-  // Wrap in promise for yield
+  // Wrap in promise for await
   return new Promise((resolve, reject) => {
     inquirer.prompt(questions, (res) => {
       _.each(questions, (question) => {
@@ -154,24 +157,23 @@ function info({ message }) {
 
 function main() {
   if(!state.finished) {
-    toolkit(state).then((res) => {
-      co(function*() { // Allow use of yield
-        switch(res.view) {
-          case 'prompt':
-            yield prompt(res.params);
-            break;
+    // Call toolkit with complete state
+    toolkit(state).then(async (res) => {
+      switch(res.view) {
+        case 'prompt':
+          await prompt(res.params);
+          break;
 
-          case 'info':
-            info(res.params);
-            break;
+        case 'info':
+          info(res.params);
+          break;
 
-          case 'validate':
-            validate(res.params);
-            break;
-        }
+        case 'validate':
+          validate(res.params);
+          break;
+      }
 
-        main();
-      });
+      main();
     }, (err) => {
       if(err.message) {
         // User-friendly message, probably an expected error
