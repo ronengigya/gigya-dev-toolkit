@@ -1,6 +1,5 @@
 'use strict';
 
-require('babel-polyfill');
 const $ = global.jQuery = require('jquery'); // Expose for Bootstrap / Angular / jQuery plugins
 require('jquery.actual/jquery.actual.js');
 const bootstrap = require('bootstrap');

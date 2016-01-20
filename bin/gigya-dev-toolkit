@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('babel-polyfill');
 require('babel-core/register')({
   // When installed for command-line use, do not ignore because we live in node_modules/
   ignore: /node_modules\/(?!gigya-dev-toolkit)/

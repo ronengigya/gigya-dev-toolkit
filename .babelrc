@@ -1,5 +1,6 @@
 {
   "plugins": [
+    "transform-runtime",
     "syntax-async-functions",
     "transform-regenerator",
     "transform-class-properties"
