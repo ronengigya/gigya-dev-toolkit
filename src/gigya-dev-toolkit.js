@@ -82,9 +82,9 @@ const toolkit = co.wrap(function *executeInner(
   // This also validates the partner ID exists
   // We'll first look for it in the array of all partners + sites we already have to save some time
   let partnerSites;
-  let findPartner = _.findWhere(allPartnerSites, { partnerID: partnerId });
-  if(findPartner) {
-    partnerSites = [findPartner];
+  let findPartner = _.filter(allPartnerSites, { partnerID: partnerId });
+  if(findPartner.length) {
+    partnerSites = findPartner;
   } else {
     partnerSites = yield GigyaDataservice.fetchUserSites({ userKey, userSecret, partnerId });
   }

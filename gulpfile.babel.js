@@ -23,9 +23,7 @@ function compile(watch, minify) {
     .transform(stringify(['.html']))
 
     // Compile ES6 to ES5
-    .transform(babelify.configure({
-      optional: ['es7.classProperties']
-    }))
+    .transform(babelify.configure())
 
     // Converts Angular DI shorthand into minification-safe argument style
     .transform(ngAnnotate);
