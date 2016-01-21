@@ -46,7 +46,7 @@
          role="alert"
          ng-click="diff.showDiff = !diff.showDiff">
       <div>
-        <strong>{{ diff.setting.toUpperCase() | translate }}:</strong>
+        <strong>{{ vm._.snakeCase(diff.setting).toUpperCase() | translate }}:</strong>
         <span>{{ diff.isDifferent ? 'VALIDATION_FAILED' : 'VALIDATION_PASSED' | translate }}</span>
       </div>
       <div ng-if="diff.numChanged">

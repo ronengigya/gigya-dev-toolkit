@@ -1,8 +1,11 @@
 'use strict';
 
+const _ = require('lodash');
+
 /* @ngInject */
 function ConfigController(translateHelper, $stateParams) {
   const vm = this;
+  vm._ = _;
   vm.state = $stateParams.state;
   vm.languages = [
     { code: 'en', label: 'ENGLISH' },

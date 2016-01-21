@@ -17,13 +17,76 @@ class GigyaDataservice {
     });
   }
 
+  static async fetchSiteConfig({ userKey, userSecret, apiKey }) {
+    // Requires 3 API calls
+    const siteConfig = await GigyaDataservice._api({
+      endpoint: 'admin.getSiteConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        includeGigyaSettings: true,
+        includeServices: false,
+        includeSiteGroupConfig: false,
+        includeSiteID: false
+      },
+      transform: (res) => {
+        // Remove settings that can't or shouldn't be automatically copied
+        delete res.description;
+        delete res.baseDomain;
+        delete res.dataCenter;
+        delete res.trustedSiteURLs;
+        delete res.siteGroupOwner;
+        delete res.logoutURL;
+        if(res.gigyaSettings) {
+          delete res.gigyaSettings.dsSize;
+        }
+
+        // Normalize for empty values
+        if(res.urlShorteners) {
+          for(const key in res.urlShorteners) {
+            if(!_.size(res.urlShorteners[key])) {
+              delete res.urlShorteners[key];
+            }
+          }
+          if(!_.size(res.urlShorteners)) {
+            delete res.urlShorteners;
+          }
+        }
+
+        return res;
+      }
+    });
+    const providers = await GigyaDataservice._api({
+      endpoint: 'socialize.getProvidersConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        includeCapabilities: true,
+        includeSettings: true
+      }
+    });
+    const restrictions = await GigyaDataservice._api({
+      endpoint: 'admin.getRestrictions',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        include: 'BlockedIPs,BlockedWords'
+      }
+    });
+    return _.merge(siteConfig, restrictions, providers);
+  }
+
   static fetchSchema({ userKey, userSecret, apiKey }) {
     return GigyaDataservice._api({ endpoint: 'accounts.getSchema', userKey, userSecret, params: { apiKey }, transform: (schema) => {
       // Profile schema has a bunch of things that are read-only
       // We don't save these to the file because they never change
       delete schema.profileSchema.unique;
       delete schema.profileSchema.dynamicSchema;
-      for(const field of schema.profileSchema.fields) {
+      for(const fieldName in schema.profileSchema.fields) {
+        const field = schema.profileSchema.fields[fieldName];
         delete field.arrayOp;
         delete field.allowNull;
         delete field.type;
@@ -62,6 +125,38 @@ class GigyaDataservice {
     });
   }
 
+  static async updateSiteConfig({ userKey, userSecret, apiKey, siteConfig }) {
+    // Requires 3 API calls
+    await GigyaDataservice._api({ endpoint: 'admin.setSiteConfig', userKey, userSecret, params: {
+      apiKey,
+      gigyaSettings: siteConfig.gigyaSettings,
+      services: siteConfig.services,
+      urlShorteners: siteConfig.urlShorteners,
+      trustedShareURLs: siteConfig.trustedShareURLs
+    } });
+    await GigyaDataservice._api({
+      endpoint: 'socialize.setProvidersConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        providers: siteConfig.providers,
+        capabilities: siteConfig.capabilities,
+        settings: siteConfig.settings
+      }
+    });
+    await GigyaDataservice._api({
+      endpoint: 'admin.setRestrictions',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        blockedIps: _.map(siteConfig.blockedIPs, (IP) => { return { IP }; }),
+        blockedWords: siteConfig.blockedWords
+      }
+    });
+  }
+
   static updateSchema({ userKey, userSecret, apiKey, schema }) {
     const params = {
       apiKey,
@@ -87,9 +182,8 @@ class GigyaDataservice {
 
   static _api({ apiDomain = 'us1.gigya.com', endpoint, userKey, userSecret, params, transform, isUseCache = false }) {
     return new Promise((resolve, reject) => {
-      let body;
-
       params = params ? _.cloneDeep(params) : {};
+      params.format = 'json';
       params.userKey = userKey;
       params.secret = userSecret;
 
@@ -108,7 +202,7 @@ class GigyaDataservice {
       const cacheKey = isUseCache ? url + JSON.stringify(params) : undefined;
 
       // Check cache and use cached response if we have it
-      body = GigyaDataservice._cacheMap.get(cacheKey);
+      let body = GigyaDataservice._cacheMap.get(cacheKey);
       if(body && isUseCache) {
         // Clone to avoid object that lives in cache being modified by reference
         return onBody(_.cloneDeep(body));

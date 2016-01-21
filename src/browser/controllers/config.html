@@ -51,7 +51,7 @@
         <!-- When support is added to import files to multiple settings with one command will remove this -->
         <span ng-if="vm.state.settings.toUpperCase">{{ vm.state.settings.toUpperCase() | translate }}</span>
         <span ng-if="!vm.state.settings.toUpperCase">
-          <span ng-repeat="setting in vm.state.settings">{{ setting.toUpperCase() | translate }}{{:: !$last ? ', ' : '' }}</span>
+          <span ng-repeat="setting in vm.state.settings">{{ vm._.snakeCase(setting).toUpperCase() | translate }}{{:: !$last ? ', ' : '' }}</span>
         </span>
       </td>
     </tr>
