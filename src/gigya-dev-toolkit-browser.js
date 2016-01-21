@@ -169,6 +169,9 @@ function run(routerHelper, translateHelper, $state, $rootScope, $translate) {
       $('body').removeClass('loading');
 
       // Show error
+      if(typeof console === 'object' && console.error) {
+        console.error(error.stack);
+      }
       $state.go('toolkit.error', { state, params: { error } });
     });
   }
