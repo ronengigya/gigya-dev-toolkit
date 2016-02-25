@@ -160,13 +160,38 @@ class GigyaDataservice {
     });
   }
 
-  static updateSchema({ userKey, userSecret, apiKey, schema }) {
+  static async updateSchema({ userKey, userSecret, apiKey, schema }) {
     const params = {
       apiKey,
       profileSchema: schema.profileSchema,
       dataSchema: schema.dataSchema
     };
-    return GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey, userSecret, params });
+    try {
+      await GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey, userSecret, params });
+    } catch(e) {
+      // "Group member site can change required field only in site scope."
+      // Submit schema on site scope in case of this error.
+      if(e.errorCode === 400020) {
+        // Target group schema.
+        params.scope = 'site';
+
+        // Only send "required" attribute.
+        const schemaTypes = ['profileSchema', 'dataSchema'];
+        for(const schemaType of schemaTypes) {
+          delete params[schemaType].dynamicSchema;
+          if(params[schemaType] && params[schemaType].fields) {
+            for(const [key, schema] of Object.entries(params[schemaType].fields)) {
+              params[schemaType].fields[key] = { required: schema.required };
+            }
+          }
+        }
+
+        // Re-send request.
+        await GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey, userSecret, params });
+      } else {
+        throw e;
+      }
+    }
   }
 
   static updatePolicies({ userKey, userSecret, apiKey, policies }) {
@@ -259,7 +284,9 @@ class GigyaDataservice {
 
         // Check for Gigya error code
         if(body.errorCode !== 0) {
-          return reject(new Error(body.errorDetails ? body.errorDetails : body.errorMessage));
+          const error = new Error(body.errorDetails ? body.errorDetails : body.errorMessage);
+          error.errorCode = body.errorCode;
+          return reject(error);
         }
 
         // Don't return trash
