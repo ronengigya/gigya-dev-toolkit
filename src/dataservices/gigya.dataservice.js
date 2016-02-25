@@ -120,7 +120,10 @@ class GigyaDataservice {
       endpoint: 'accounts.getScreenSets',
       userKey,
       userSecret,
-      params: { apiKey },
+      params: {
+        apiKey,
+        include: 'screenSetID,html,css,metadata'
+      },
       transform: (res) => res.screenSets
     });
   }
@@ -173,8 +176,8 @@ class GigyaDataservice {
 
   static updateScreensets({ userKey, userSecret, apiKey, screensets }) {
     const promises = [];
-    _.each(screensets, ({ screenSetID, html, css }) => {
-      const params = { apiKey, screenSetID, html, css };
+    _.each(screensets, ({ screenSetID, html, css, metadata }) => {
+      const params = { apiKey, screenSetID, html, css, metadata };
       promises.push(GigyaDataservice._api({ endpoint: 'accounts.setScreenSet', userKey, userSecret, params }));
     });
     return promises;
