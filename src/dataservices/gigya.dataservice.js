@@ -171,7 +171,7 @@ class GigyaDataservice {
     } catch(e) {
       // "Group member site can change required field only in site scope."
       // Submit schema on site scope in case of this error.
-      if(e.errorCode === 400020) {
+      if(e.code === 400020) {
         // Target group schema.
         params.scope = 'site';
 
@@ -194,9 +194,28 @@ class GigyaDataservice {
     }
   }
 
-  static updatePolicies({ userKey, userSecret, apiKey, policies }) {
-    const params = _.merge(policies, { apiKey });
-    return GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey, userSecret, params });
+  static async updatePolicies({ userKey, userSecret, apiKey, policies }) {
+    const params = _.extend({}, policies, { apiKey });
+    try {
+      await GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey, userSecret, params });
+    } catch(e) {
+      // "Invalid argument: Member sites may not override group-level policies (registration,passwordComplexity,...)"
+      // "Invalid argument: Member sites may not override subgroup policies (accountOptions.verifyProviderEmail,...)"
+      console.log(e);
+      if(e.code === 400006 && e.message.indexOf('Member sites may not override') !== -1) {
+        // Remove group-level policies by parsing error message for keys to remove and try again.
+        const keysToRemove = e.message.substring(e.message.indexOf('(') + 1, e.message.indexOf(')')).split(',');
+        for(const keyToRemove of keysToRemove) {
+          _.set(params, keyToRemove, undefined);
+        }
+
+        // We may need multiple rounds to remove all offending policies.
+        await this.updatePolicies({ userKey, userSecret, apiKey, policies: params });
+      } else {
+        // Exception thrown that we don't care about, bubble up.
+        throw e;
+      }
+    }
   }
 
   static updateScreensets({ userKey, userSecret, apiKey, screensets }) {
@@ -216,11 +235,11 @@ class GigyaDataservice {
       params.secret = userSecret;
 
       // Serialize objects as JSON strings
-      _.each(params, (param, key) => {
+      for(const [key, param] of Object.entries(params)) {
         if(_.isObject(param)) {
           params[key] = JSON.stringify(param);
         }
-      });
+      }
 
       // Fire request with params
       const namespace = endpoint.substring(0, endpoint.indexOf('.'));
@@ -285,7 +304,7 @@ class GigyaDataservice {
         // Check for Gigya error code
         if(body.errorCode !== 0) {
           const error = new Error(body.errorDetails ? body.errorDetails : body.errorMessage);
-          error.errorCode = body.errorCode;
+          error.code = body.errorCode;
           return reject(error);
         }
 
