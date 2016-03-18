@@ -118,8 +118,8 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
           message: task !== 'import' ? 'SETTINGS' : 'SETTING',
           choices: [
             { name: 'SITE_CONFIG', value: 'siteConfig' },
-            { name: 'SCHEMA', value: 'schema' },
             { name: 'SCREENSETS', value: 'screensets' },
+            { name: 'SCHEMA', value: 'schema' },
             { name: 'POLICIES', value: 'policies' }
           ]
         }
