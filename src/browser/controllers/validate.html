@@ -47,7 +47,7 @@
          ng-click="diff.showDiff = !diff.showDiff">
       <div>
         <strong>{{ vm._.snakeCase(diff.setting).toUpperCase() | translate }}:</strong>
-        <span>{{ diff.isDifferent ? 'VALIDATION_FAILED' : 'VALIDATION_PASSED' | translate }}</span>
+        <span>{{ diff.isDifferent ? 'VALIDATION_FOUND_DIFFERENCES' : 'VALIDATION_PASSED' | translate }}</span>
       </div>
       <div ng-if="diff.numChanged">
         <strong>{{ 'CHANGED' | translate }}:</strong> {{ diff.numChanged }} {{ diff.numChanged > 1 ? 'VALUES' : 'VALUE' | translate }}

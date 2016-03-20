@@ -22,7 +22,7 @@
   "SAVE_FILE_AS": "Save file as",
   "LOAD_FILE": "Load file",
   "VALIDATION_PASSED": "Validation passed",
-  "VALIDATION_FAILED": "Validation failed",
+  "VALIDATION_FOUND_DIFFERENCES": "Validation found differences",
   "CHANGED": "Changed",
   "ADDED": "Added",
   "REMOVED": "Removed",
@@ -39,5 +39,6 @@
   "IMPORT_SUCCESSFUL": "Import successful",
   "COPY_SUCCESSFUL": "Copy successful",
   "CLICK_TO_SHOW_VISUAL_DIFF": "Click to show visual diff",
-  "CLICK_TO_HIDE_VISUAL_DIFF": "Click to hide visual diff"
+  "CLICK_TO_HIDE_VISUAL_DIFF": "Click to hide visual diff",
+  "NEW_SITE": "New site"
 }

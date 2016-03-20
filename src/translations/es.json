@@ -23,7 +23,7 @@
   "LOAD_FILE": "Cargar archivo",
   "SKIP_TO_SELECT_FROM_LIST": "Saltar a seleccionar de la lista",
   "VALIDATION_PASSED": "Validación pasó",
-  "VALIDATION_FAILED": "Validación fallida",
+  "VALIDATION_FOUND_DIFFERENCES": "Validación encontraron diferencias",
   "CHANGED": "Cambiado",
   "ADDED": "Adicional",
   "REMOVED": "Eliminado",
@@ -40,5 +40,6 @@
   "IMPORT_SUCCESSFUL": "Importación exitosa",
   "COPY_SUCCESSFUL": "Copie éxito",
   "CLICK_TO_SHOW_VISUAL_DIFF": "Haga clic para mostrar diferencia visual",
-  "CLICK_TO_HIDE_VISUAL_DIFF": "Haga clic para ocultar diferencia visual"
+  "CLICK_TO_HIDE_VISUAL_DIFF": "Haga clic para ocultar diferencia visual",
+  "NEW_SITE": "Nuevo sitio"
 }
