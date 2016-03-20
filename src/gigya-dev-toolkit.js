@@ -134,253 +134,201 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
     return GigyaDataservice[method](_.merge({ userKey, userSecret }, params));
   }
 
-  switch(task) {
-    case 'export':
-      // Get API key to export from
-      if(!sourceApiKey) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'sourceApiKey',
-              type: 'list',
-              message: 'SOURCE_GIGYA_SITE',
-              choices: sites
-            }
-          }
-        };
-      }
-
-      // Get data to write to file
-      for(const setting of settings) {
-        writeFile({
-          filePath: `${setting}.${sourceApiKey}.${new Date().getTime()}.json`,
-          data: await crud('fetch', setting, { apiKey: sourceApiKey })
-        });
-      }
-
-      // Show success message
+  const settingsData = {};
+  if(task === 'export' || task === 'copy' || task === 'validate') {
+    // Get API key to export from
+    if(!sourceApiKey) {
       return {
-        view: 'info',
+        view: 'prompt',
         params: {
-          message: `EXPORT_SUCCESSFUL`
+          questions: {
+            name: 'sourceApiKey',
+            type: 'list',
+            message: 'SOURCE_GIGYA_SITE',
+            choices: sites
+          }
         }
       };
-      break;
+    }
 
-    case 'import':
-      // Get file which we will load settings from
-      if(!sourceFile) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'sourceFile',
-              type: 'file',
-              message: 'LOAD_FILE'
-            }
-          }
-        };
-      }
-
-      // Get API key(s) to import to
-      if(!destinationApiKeys) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'destinationApiKeys',
-              type: 'checkbox',
-              message: 'DESTINATION_GIGYA_SITES',
-              choices: _.filter(sites, (site) => site.value !== sourceApiKey)
-            }
-          }
-        };
-      }
-
-      // Fetch data from file, parse into JSON, and pass parameter into crud method
-      // Parameter is either "schema", "screensets", or "policies"
-      const settingsData = JSON.parse(await readFile({ file: sourceFile }));
-      for(const destinationApiKey of destinationApiKeys) {
-        await crud('update', settings, {
-          apiKey: destinationApiKey,
-          [settings]: settingsData
-        });
-      }
-
-      // Show success message
-      return {
-        view: 'info',
-        params: {
-          message: `IMPORT_SUCCESSFUL`
-        }
-      };
-      break;
-
-    case 'copy':
-      // Get API keys to copy from/to
-      if(!sourceApiKey) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'sourceApiKey',
-              type: 'list',
-              message: 'SOURCE_GIGYA_SITE',
-              choices: sites
-            }
-          }
-        };
-      }
-      if(!destinationApiKeys) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'destinationApiKeys',
-              type: 'checkbox',
-              message: 'DESTINATION_GIGYA_SITES',
-              choices: _.filter(sites, (site) => site.value !== sourceApiKey)
-            }
-          }
-        };
-      }
-
-      const fetchedSettings = {};
-      for(const setting of settings) {
-        fetchedSettings[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
-      }
-
-      // Push settings from source into destination(s)
-      for(const destinationApiKey of destinationApiKeys) {
-        for(const setting of settings) {
-          await crud('update', setting, {
-            apiKey: destinationApiKey,
-            [setting]: fetchedSettings[setting]
-          });
-        }
-      }
-
-      // Show success message
-      return {
-        view: 'info',
-        params: {
-          message: `COPY_SUCCESSFUL`
-        }
-      };
-      break;
-
-    case 'validate':
-      if(!sourceApiKey) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'sourceApiKey',
-              type: 'list',
-              message: 'SOURCE_GIGYA_SITE',
-              choices: sites
-            }
-          }
-        };
-      }
-
-      if(!destinationApiKeys) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: {
-              name: 'destinationApiKeys',
-              type: 'checkbox',
-              message: 'DESTINATION_GIGYA_SITES',
-              choices: _.filter(sites, (site) => site.value !== sourceApiKey)
-            }
-          }
-        };
-      }
-
-      const validations = [];
-      const sourceObjs = {};
-
-      for(const setting of settings) {
-        sourceObjs[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
-      }
-
-      for(const destinationApiKey of destinationApiKeys) {
-        const diffs = [];
-        for(const setting of settings) {
-          // Fetch objects and run jsdiff
-          const sourceObj = sourceObjs[setting];
-          const destinationObj = await crud('fetch', setting, { apiKey: destinationApiKey });
-          const diff = jsdiff.diffJson(sourceObj, destinationObj);
-
-          // Calculate stats
-          let numAdded = 0;
-          let numRemoved = 0;
-          for(const part of diff) {
-            if(part.added) {
-              numAdded += part.count;
-            } else if(part.removed) {
-              numRemoved += part.count;
-            }
-          }
-          let numChanged = Math.min(numAdded, numRemoved);
-          numRemoved -= numChanged;
-          numAdded -= numChanged;
-          const isDifferent = numAdded || numRemoved || numChanged;
-
-          // Abbreviate diff value if necessary, retains original value, creats new abbrValue index
-          // Standardize newlines
-          for(const part of diff) {
-            // Trim newlines at ends so we can ENSURE they exist consistently
-            part.value = part.value.replace(/^[\r\n]+|[\r\n]+$/g, '') + "\n";
-
-            // Abbr length varies, show less of unchanged text
-            const diffLength = part.added || part.removed ? 1000 : 300;
-            const halfDiffLength = (diffLength / 2);
-
-            // We don't want to show the entire value
-            // Limit to X chars -> find next newline -> if newline doesn't exist in X additional chars chop off
-            if(part.value.length > diffLength) {
-              // Halve diff
-              let valueFirstHalf = part.value.substr(0, halfDiffLength);
-              let valueLastHalf = part.value.substr(part.value.length - halfDiffLength);
-
-              // Look for newline breakpoints
-              valueFirstHalf = valueFirstHalf.substr(0, valueFirstHalf.lastIndexOf("\n"));
-              valueLastHalf = valueLastHalf.substr(valueLastHalf.indexOf("\n"));
-
-              // Write back to diff
-              // Trim newlines at ends so we can ENSURE they exist consistently
-              part.abbrValue = valueFirstHalf.replace(/^[\r\n]+|[\r\n]+$/g, '')
-                + "\r\n...\r\n"
-                + valueLastHalf.replace(/^[\r\n]+|[\r\n]+$/g, '')
-                + "\r\n";
-            }
-          }
-    
-          // This is what we're returning
-          diffs.push({
-            setting,
-            diff,
-            sourceObj,
-            destinationObj,
-            isDifferent,
-            numAdded,
-            numRemoved,
-            numChanged
-          });
-        }
-
-        validations.push({ diffs, site: _.find(partnerSites[0].sites, { apiKey: destinationApiKey }) });
-      }
-
-      return {
-        view: 'validate',
-        params: { validations }
-      }
-      break;
+    // Fetch settings from selected key
+    for(const setting of settings) {
+      settingsData[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
+    }
   }
+
+  if(task === 'import' || task === 'copy' || task === 'validate') {
+    // Get API keys
+    if(!destinationApiKeys) {
+      return {
+        view: 'prompt',
+        params: {
+          questions: {
+            name: 'destinationApiKeys',
+            type: 'checkbox',
+            message: 'DESTINATION_GIGYA_SITES',
+            choices: _.filter(sites, (site) => site.value !== sourceApiKey)
+          }
+        }
+      };
+    }
+  }
+
+  if(task === 'export') {
+    for(const setting in settingsData) {
+      writeFile({
+        filePath: `${setting}.${sourceApiKey}.${new Date().getTime()}.json`,
+        data: settingsData[setting]
+      });
+    }
+
+    // Show success message
+    return {
+      view: 'info',
+      params: {
+        message: `EXPORT_SUCCESSFUL`
+      }
+    };
+  }
+
+  if(task === 'copy') {
+    // Push settings from source into destination(s)
+    for(const destinationApiKey of destinationApiKeys) {
+      for(const setting in settingsData) {
+        await crud('update', setting, {
+          apiKey: destinationApiKey,
+          [setting]: settingsData[setting]
+        });
+      }
+    }
+
+    // Show success message
+    return {
+      view: 'info',
+      params: {
+        message: `COPY_SUCCESSFUL`
+      }
+    };
+  }
+
+  if(task === 'import') {
+    // Get file which we will load settings from
+    if(!sourceFile) {
+      return {
+        view: 'prompt',
+        params: {
+          questions: {
+            name: 'sourceFile',
+            type: 'file',
+            message: 'LOAD_FILE'
+          }
+        }
+      };
+    }
+
+    // Fetch data from file, parse into JSON, and pass parameter into crud method
+    // Parameter is either "schema", "screensets", or "policies"
+    const sourceFileData = JSON.parse(await readFile({ file: sourceFile }));
+    for(const destinationApiKey of destinationApiKeys) {
+      await crud('update', settings, {
+        apiKey: destinationApiKey,
+        [settings]: sourceFileData
+      });
+    }
+
+    // Show success message
+    return {
+      view: 'info',
+      params: {
+        message: `IMPORT_SUCCESSFUL`
+      }
+    };
+  }
+
+  if(task === 'validate') {
+    const validations = [];
+    const sourceObjs = {};
+
+    for(const setting of settings) {
+      sourceObjs[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
+    }
+
+    for(const destinationApiKey of destinationApiKeys) {
+      const diffs = [];
+      for(const setting of settings) {
+        // Fetch objects and run jsdiff
+        const sourceObj = sourceObjs[setting];
+        const destinationObj = await crud('fetch', setting, { apiKey: destinationApiKey });
+        const diff = jsdiff.diffJson(sourceObj, destinationObj);
+
+        // Calculate stats
+        let numAdded = 0;
+        let numRemoved = 0;
+        for(const part of diff) {
+          if(part.added) {
+            numAdded += part.count;
+          } else if(part.removed) {
+            numRemoved += part.count;
+          }
+        }
+        let numChanged = Math.min(numAdded, numRemoved);
+        numRemoved -= numChanged;
+        numAdded -= numChanged;
+        const isDifferent = numAdded || numRemoved || numChanged;
+
+        // Abbreviate diff value if necessary, retains original value, creats new abbrValue index
+        // Standardize newlines
+        for(const part of diff) {
+          // Trim newlines at ends so we can ENSURE they exist consistently
+          part.value = part.value.replace(/^[\r\n]+|[\r\n]+$/g, '') + "\n";
+
+          // Abbr length varies, show less of unchanged text
+          const diffLength = part.added || part.removed ? 1000 : 300;
+          const halfDiffLength = (diffLength / 2);
+
+          // We don't want to show the entire value
+          // Limit to X chars -> find next newline -> if newline doesn't exist in X additional chars chop off
+          if(part.value.length > diffLength) {
+            // Halve diff
+            let valueFirstHalf = part.value.substr(0, halfDiffLength);
+            let valueLastHalf = part.value.substr(part.value.length - halfDiffLength);
+
+            // Look for newline breakpoints
+            valueFirstHalf = valueFirstHalf.substr(0, valueFirstHalf.lastIndexOf("\n"));
+            valueLastHalf = valueLastHalf.substr(valueLastHalf.indexOf("\n"));
+
+            // Write back to diff
+            // Trim newlines at ends so we can ENSURE they exist consistently
+            part.abbrValue = valueFirstHalf.replace(/^[\r\n]+|[\r\n]+$/g, '')
+              + "\r\n...\r\n"
+              + valueLastHalf.replace(/^[\r\n]+|[\r\n]+$/g, '')
+              + "\r\n";
+          }
+        }
+  
+        // This is what we're returning
+        diffs.push({
+          setting,
+          diff,
+          sourceObj,
+          destinationObj,
+          isDifferent,
+          numAdded,
+          numRemoved,
+          numChanged
+        });
+      }
+
+      validations.push({ diffs, site: _.find(partnerSites[0].sites, { apiKey: destinationApiKey }) });
+    }
+
+    return {
+      view: 'validate',
+      params: { validations }
+    }
+  }
+
+  throw new Error('No view rendered.');
 }
 
 module.exports = toolkit;
