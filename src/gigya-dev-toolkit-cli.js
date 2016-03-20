@@ -3,7 +3,6 @@
 const state = require('commander');
 const _ = require('lodash');
 const colors = require('colors');
-const co = require('co');
 const inquirer = require('inquirer');
 const toolkit = require('./gigya-dev-toolkit.js');
 const t = require('./translations/en.json');
