@@ -77,8 +77,8 @@ function prompt({ questions }) {
         }
 
         // Command line bugs out if the value name > console width
-        if(value.name.length > 83) {
-          value.name = `${value.name.substr(0, 80)}...`;
+        if(value.name.length > 93) {
+          value.name = `${value.name.substr(0, 90)}...`;
         }
       }
     }
