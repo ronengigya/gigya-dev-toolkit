@@ -1,7 +1,4 @@
 node_modules/
-build.browser/
 src/todo.txt
-
 npm-debug.log
-
 .idea/

@@ -16,7 +16,7 @@
     <label class="question-label">{{ question.message | translate }}</label>
 
     <div ng-if="question.type === 'input'">
-      <input type="text" class="form-control" ng-model="vm.answers[question.name]" placeholder="{{ question.default | translate }}">
+      <input type="text" class="form-control" ng-model="vm.answers[question.name]" placeholder="{{ question.default }}">
     </div>
 
     <div ng-if="question.type === 'password'">

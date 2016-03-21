@@ -1,7 +1,3 @@
 #!/usr/bin/env node
 
-require('babel-core/register')({
-  // When installed for command-line use, do not ignore because we live in node_modules/
-  ignore: /node_modules\/(?!gigya-dev-toolkit)/
-});
-require('../src/gigya-dev-toolkit-cli.js');
+require('../build.cli/gigya-dev-toolkit-cli.js');

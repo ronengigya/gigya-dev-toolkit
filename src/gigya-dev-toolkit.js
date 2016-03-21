@@ -6,7 +6,8 @@ const writeFile = require('./helpers/write-file');
 const readFile = require('./helpers/read-file');
 const jsdiff = require('diff');
 
-const toolkit = async function({ userKey, userSecret, task, settings, partnerId, sourceFile, sourceApiKey, destinationApiKeys }) {
+const toolkit = async function({ userKey, userSecret, task, settings, partnerId, sourceFile, sourceApiKey,
+  destinationApiKeys, newSiteBaseDomain, newSiteDescription, newSiteDataCenter }) {
   // Gigya credentials needed to access API
   if(!userKey || !userSecret) {
     return {
@@ -84,7 +85,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   for(const site of partnerSites[0].sites) {
     // If the site breaks onto a second line it breaks my console, keep line length sane
     sites.push({
-      name: `${site.apiKey} (${site.baseDomain}${site.description ? ', ' + site.description : ''})`,
+      name: `${site.baseDomain}${site.description ? ` "${site.description}"` : ''} ${site.apiKey}`,
       value: site.apiKey
     });
   }
@@ -131,7 +132,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   // operation = fetch or update
   function crud(operation, setting, params = {}) {
     const method = `${operation}${setting.charAt(0).toUpperCase()}${setting.slice(1)}`;
-    return GigyaDataservice[method](_.merge({ userKey, userSecret }, params));
+    return GigyaDataservice[method](_.merge({ userKey, userSecret, partnerId }, params));
   }
 
   const settingsData = {};
@@ -156,10 +157,35 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
       settingsData[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
     }
   }
+  if(task === 'import') {
+    // Get file which we will load settings from
+    if(!sourceFile) {
+      return {
+        view: 'prompt',
+        params: {
+          questions: {
+            name: 'sourceFile',
+            type: 'file',
+            message: 'LOAD_FILE'
+          }
+        }
+      };
+    }
+    const sourceFileData = JSON.parse(await readFile({ file: sourceFile }));
+    settingsData[settings] = sourceFileData;
+  }
 
   if(task === 'import' || task === 'copy' || task === 'validate') {
-    // Get API keys
+    // Get destination API keys
     if(!destinationApiKeys) {
+      // Create destination site options
+      const choices = _.filter(sites, (site) => site.value !== sourceApiKey);
+
+      // Add new site option to destination API key if importing site config
+      if(task !== 'validate' && settings.indexOf('siteConfig') !== -1) {
+        choices.unshift({ name: 'NEW_SITE', value: 'new' });
+      }
+
       return {
         view: 'prompt',
         params: {
@@ -167,10 +193,61 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
             name: 'destinationApiKeys',
             type: 'checkbox',
             message: 'DESTINATION_GIGYA_SITES',
-            choices: _.filter(sites, (site) => site.value !== sourceApiKey)
+            choices
           }
         }
       };
+    }
+
+    // Check for new site and grab additional information if needed
+    if(destinationApiKeys.indexOf('new') !== -1) {
+      if(!newSiteBaseDomain) {
+        return {
+          view: 'prompt',
+          params: {
+            questions: [
+              {
+                name: 'newSiteBaseDomain',
+                type: 'input',
+                message: 'NEW_SITE_BASE_DOMAIN',
+                default: settingsData['siteConfig'].baseDomain
+              }
+            ]
+          }
+        };
+      }
+
+      if(!newSiteDescription) {
+        return {
+          view: 'prompt',
+          params: {
+            questions: [
+              {
+                name: 'newSiteDescription',
+                type: 'input',
+                message: 'NEW_SITE_DESCRIPTION',
+                default: settingsData['siteConfig'].description
+              }
+            ]
+          }
+        };
+      }
+
+      if(!newSiteDataCenter) {
+        return {
+          view: 'prompt',
+          params: {
+            questions: [
+              {
+                name: 'newSiteDataCenter',
+                type: 'input',
+                message: 'NEW_SITE_DATA_CENTER',
+                default: settingsData['siteConfig'].dataCenter
+              }
+            ]
+          }
+        };
+      }
     }
   }
 
@@ -191,56 +268,33 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
     };
   }
 
-  if(task === 'copy') {
+  if(task === 'copy' || task === 'import') {
     // Push settings from source into destination(s)
     for(const destinationApiKey of destinationApiKeys) {
       for(const setting in settingsData) {
-        await crud('update', setting, {
+        // Put together params and be sure to clone the settingsData
+        const params = {
           apiKey: destinationApiKey,
-          [setting]: settingsData[setting]
-        });
-      }
-    }
+          [setting]: _.assign({}, settingsData[setting])
+        };
 
-    // Show success message
-    return {
-      view: 'info',
-      params: {
-        message: `COPY_SUCCESSFUL`
-      }
-    };
-  }
-
-  if(task === 'import') {
-    // Get file which we will load settings from
-    if(!sourceFile) {
-      return {
-        view: 'prompt',
-        params: {
-          questions: {
-            name: 'sourceFile',
-            type: 'file',
-            message: 'LOAD_FILE'
-          }
+        // If the destinationApiKey is new, override specific params
+        if(destinationApiKey === 'new') {
+          params['siteConfig'].baseDomain = newSiteBaseDomain;
+          params['siteConfig'].description = newSiteDescription;
+          params['siteConfig'].dataCenter = newSiteDataCenter;
         }
-      };
-    }
 
-    // Fetch data from file, parse into JSON, and pass parameter into crud method
-    // Parameter is either "schema", "screensets", or "policies"
-    const sourceFileData = JSON.parse(await readFile({ file: sourceFile }));
-    for(const destinationApiKey of destinationApiKeys) {
-      await crud('update', settings, {
-        apiKey: destinationApiKey,
-        [settings]: sourceFileData
-      });
+        // Update via API call
+        await crud('update', setting, params);
+      }
     }
 
     // Show success message
     return {
       view: 'info',
       params: {
-        message: `IMPORT_SUCCESSFUL`
+        message: `${task.toUpperCase()}_SUCCESSFUL`
       }
     };
   }

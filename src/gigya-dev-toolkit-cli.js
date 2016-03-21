@@ -18,6 +18,9 @@ state
   .option('--sourceApiKey [value]', t.SOURCE_GIGYA_SITE)
   .option('--sourceFile [value]', t.SETTINGS_FILE)
   .option('--destinationApiKeys [value]', t.DESTINATION_GIGYA_SITES)
+  .option('--newSiteBaseDomain [value]', t.NEW_SITE_BASE_DOMAIN)
+  .option('--newSiteDescription [value]', t.NEW_SITE_DESCRIPTION)
+  .option('--newSiteDataCenter [value]', t.NEW_SITE_DATA_CENTER)
   .parse(process.argv);
 
 // Convert strings to arrays when necessary
@@ -88,13 +91,7 @@ function prompt({ questions }) {
   return new Promise((resolve, reject) => {
     inquirer.prompt(questions, (res) => {
       _.each(questions, (question) => {
-        // We don't use defaults to populate values
-        // The HTML version represents it as a "placeholder" attribute, to give you an idea
-        if(question.default && res[question.name] === question.default) {
-          res[question.name] = undefined;
-
-        // All empty values should be undefined
-        } else if(res[question.name] === ''
+        if(res[question.name] === ''
           || (_.isArray(res[question.name]) && res[question.name].length === 0)) {
           res[question.name] = undefined;
         }
@@ -176,6 +173,7 @@ function main() {
       if(err.message) {
         // User-friendly message, probably an expected error
         console.error(err.message.white.bgRed);
+        console.error(err.stack);
       } else {
         // Unexpected error
         console.error(t.UNRECOVERABLE_ERROR.white.bgRed);

@@ -12,8 +12,13 @@ const stringify = require('stringify');
 
 // Paths used in build process
 const paths = {
+  // Browser
   build: './build.browser',
-  out: 'build.js'
+  out: 'build.js',
+
+  // CLI
+  srcGlob: './src/**/*.js',
+  dist: './build.cli'
 };
 
 function compile(watch, minify) {
@@ -40,6 +45,11 @@ function compile(watch, minify) {
   }
 
   function rebundle() {
+    // Compile files for CLI
+    gulp.src(paths.srcGlob)
+      .pipe(_gulp.babel())
+      .pipe(gulp.dest(paths.dist));
+
     // These files are rarely updated, but not watched, restart gulp if changed:
 
     // Copy index.html

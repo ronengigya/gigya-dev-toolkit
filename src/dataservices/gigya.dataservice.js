@@ -26,22 +26,11 @@ class GigyaDataservice {
       params: {
         apiKey,
         includeGigyaSettings: true,
-        includeServices: false,
-        includeSiteGroupConfig: false,
+        includeServices: true,
+        includeSiteGroupConfig: true,
         includeSiteID: false
       },
       transform: (res) => {
-        // Remove settings that can't or shouldn't be automatically copied
-        delete res.description;
-        delete res.baseDomain;
-        delete res.dataCenter;
-        delete res.trustedSiteURLs;
-        delete res.siteGroupOwner;
-        delete res.logoutURL;
-        if(res.gigyaSettings) {
-          delete res.gigyaSettings.dsSize;
-        }
-
         // Normalize for empty values
         if(res.urlShorteners) {
           for(const key in res.urlShorteners) {
@@ -128,14 +117,44 @@ class GigyaDataservice {
     });
   }
 
-  static async updateSiteConfig({ userKey, userSecret, apiKey, siteConfig }) {
+  static async updateSiteConfig({ userKey, userSecret, partnerId, apiKey, siteConfig, copyEverything = true }) {
+    // Check to see if we're trying to create a new site
+    if(apiKey === 'new') {
+      // Create API key and then call updateSiteConfig to set all other values.
+      const response = await GigyaDataservice._api({ endpoint: 'admin.createSite', userKey, userSecret, params: {
+        partnerID: partnerId,
+        baseDomain: siteConfig.baseDomain,
+        description: siteConfig.description,
+        dataCenter: siteConfig.dataCenter
+      } });
+      copyEverything = true;
+      apiKey = response.apiKey;
+    }
+
+    // Remove settings that can't or shouldn't be automatically copied
+    // This gets overriden when a new site is created
+    if(copyEverything === false) {
+      delete siteConfig.description;
+      delete siteConfig.baseDomain;
+      delete siteConfig.dataCenter;
+      delete siteConfig.trustedSiteURLs;
+      delete siteConfig.siteGroupOwner;
+      delete siteConfig.logoutURL;
+      if(siteConfig.gigyaSettings) {
+        delete siteConfig.gigyaSettings.dsSize;
+      }
+    }
+
     // Requires 3 API calls
     await GigyaDataservice._api({ endpoint: 'admin.setSiteConfig', userKey, userSecret, params: {
       apiKey,
       gigyaSettings: siteConfig.gigyaSettings,
       services: siteConfig.services,
       urlShorteners: siteConfig.urlShorteners,
-      trustedShareURLs: siteConfig.trustedShareURLs
+      trustedShareURLs: siteConfig.trustedShareURLs,
+      siteGroupConfig: siteConfig.siteGroupConfig,
+      logoutURL: siteConfig.logoutURL,
+      siteGroupOwner: siteConfig.siteGroupOwner
     } });
     await GigyaDataservice._api({
       endpoint: 'socialize.setProvidersConfig',
@@ -158,6 +177,8 @@ class GigyaDataservice {
         blockedWords: siteConfig.blockedWords
       }
     });
+
+    return { apiKey };
   }
 
   static async updateSchema({ userKey, userSecret, apiKey, schema }) {
@@ -244,6 +265,8 @@ class GigyaDataservice {
       // Fire request with params
       const namespace = endpoint.substring(0, endpoint.indexOf('.'));
       let url = `https://${namespace}.${apiDomain}/${endpoint}`;
+
+      console.log(url + '?' + require('querystring').stringify(params));
 
       // Create cache key
       const cacheKey = isUseCache ? url + JSON.stringify(params) : undefined;
