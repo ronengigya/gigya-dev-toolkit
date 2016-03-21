@@ -5,7 +5,7 @@ const _ = require('lodash');
 const colors = require('colors');
 const inquirer = require('inquirer');
 const toolkit = require('./gigya-dev-toolkit.js');
-const t = require('./translations/en.json');
+const t = require('../src/translations/en.json');
 const fs = require('fs');
 
 // Command-line arguments

@@ -19,7 +19,7 @@ var _ = require('lodash');
 var colors = require('colors');
 var inquirer = require('inquirer');
 var toolkit = require('./gigya-dev-toolkit.js');
-var t = require('./translations/en.json');
+var t = require('../src/translations/en.json');
 var fs = require('fs');
 
 // Command-line arguments
