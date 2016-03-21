@@ -222,7 +222,6 @@ class GigyaDataservice {
     } catch(e) {
       // "Invalid argument: Member sites may not override group-level policies (registration,passwordComplexity,...)"
       // "Invalid argument: Member sites may not override subgroup policies (accountOptions.verifyProviderEmail,...)"
-      console.log(e);
       if(e.code === 400006 && e.message.indexOf('Member sites may not override') !== -1) {
         // Remove group-level policies by parsing error message for keys to remove and try again.
         const keysToRemove = e.message.substring(e.message.indexOf('(') + 1, e.message.indexOf(')')).split(',');
@@ -266,7 +265,7 @@ class GigyaDataservice {
       const namespace = endpoint.substring(0, endpoint.indexOf('.'));
       let url = `https://${namespace}.${apiDomain}/${endpoint}`;
 
-      console.log(url + '?' + require('querystring').stringify(params));
+      //console.log(url + '?' + require('querystring').stringify(params));
 
       // Create cache key
       const cacheKey = isUseCache ? url + JSON.stringify(params) : undefined;

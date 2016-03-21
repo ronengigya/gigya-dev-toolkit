@@ -494,19 +494,15 @@ var GigyaDataservice = function () {
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey: userKey, userSecret: userSecret, params: params }));
 
             case 4:
-              _context4.next = 35;
+              _context4.next = 34;
               break;
 
             case 6:
               _context4.prev = 6;
               _context4.t0 = _context4['catch'](1);
 
-              // "Invalid argument: Member sites may not override group-level policies (registration,passwordComplexity,...)"
-              // "Invalid argument: Member sites may not override subgroup policies (accountOptions.verifyProviderEmail,...)"
-              console.log(_context4.t0);
-
               if (!(_context4.t0.code === 400006 && _context4.t0.message.indexOf('Member sites may not override') !== -1)) {
-                _context4.next = 34;
+                _context4.next = 33;
                 break;
               }
 
@@ -515,7 +511,7 @@ var GigyaDataservice = function () {
               _iteratorNormalCompletion3 = true;
               _didIteratorError3 = false;
               _iteratorError3 = undefined;
-              _context4.prev = 14;
+              _context4.prev = 13;
 
               for (_iterator3 = (0, _getIterator3.default)(keysToRemove); !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                 keyToRemove = _step3.value;
@@ -524,56 +520,56 @@ var GigyaDataservice = function () {
               }
 
               // We may need multiple rounds to remove all offending policies.
-              _context4.next = 22;
+              _context4.next = 21;
               break;
 
-            case 18:
-              _context4.prev = 18;
-              _context4.t1 = _context4['catch'](14);
+            case 17:
+              _context4.prev = 17;
+              _context4.t1 = _context4['catch'](13);
               _didIteratorError3 = true;
               _iteratorError3 = _context4.t1;
 
-            case 22:
+            case 21:
+              _context4.prev = 21;
               _context4.prev = 22;
-              _context4.prev = 23;
 
               if (!_iteratorNormalCompletion3 && _iterator3.return) {
                 _iterator3.return();
               }
 
-            case 25:
-              _context4.prev = 25;
+            case 24:
+              _context4.prev = 24;
 
               if (!_didIteratorError3) {
-                _context4.next = 28;
+                _context4.next = 27;
                 break;
               }
 
               throw _iteratorError3;
 
+            case 27:
+              return _context4.finish(24);
+
             case 28:
-              return _context4.finish(25);
+              return _context4.finish(21);
 
             case 29:
-              return _context4.finish(22);
-
-            case 30:
-              _context4.next = 32;
+              _context4.next = 31;
               return _regenerator2.default.awrap(this.updatePolicies({ userKey: userKey, userSecret: userSecret, apiKey: apiKey, policies: params }));
 
-            case 32:
-              _context4.next = 35;
+            case 31:
+              _context4.next = 34;
               break;
 
-            case 34:
+            case 33:
               throw _context4.t0;
 
-            case 35:
+            case 34:
             case 'end':
               return _context4.stop();
           }
         }
-      }, null, this, [[1, 6], [14, 18, 22, 30], [23,, 25, 29]]);
+      }, null, this, [[1, 6], [13, 17, 21, 29], [22,, 24, 28]]);
     }
   }, {
     key: 'updateScreensets',
@@ -650,7 +646,7 @@ var GigyaDataservice = function () {
         var namespace = endpoint.substring(0, endpoint.indexOf('.'));
         var url = 'https://' + namespace + '.' + apiDomain + '/' + endpoint;
 
-        console.log(url + '?' + require('querystring').stringify(params));
+        //console.log(url + '?' + require('querystring').stringify(params));
 
         // Create cache key
         var cacheKey = isUseCache ? url + (0, _stringify2.default)(params) : undefined;
