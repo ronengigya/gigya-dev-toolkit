@@ -40,5 +40,8 @@
   "COPY_SUCCESSFUL": "Copy successful",
   "CLICK_TO_SHOW_VISUAL_DIFF": "Click to show visual diff",
   "CLICK_TO_HIDE_VISUAL_DIFF": "Click to hide visual diff",
-  "NEW_SITE": "New site"
+  "NEW_SITE": "New site",
+  "NEW_SITE_BASE_DOMAIN": "New site base domain",
+  "NEW_SITE_DESCRIPTION": "New site description",
+  "NEW_SITE_DATA_CENTER": "New site data center"
 }
