@@ -283,6 +283,9 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
           params['siteConfig'].baseDomain = newSiteBaseDomain;
           params['siteConfig'].description = newSiteDescription;
           params['siteConfig'].dataCenter = newSiteDataCenter;
+
+          // Default to the provided base domain.
+          delete params['siteConfig'].trustedSiteURLs;
         }
 
         // Update via API call

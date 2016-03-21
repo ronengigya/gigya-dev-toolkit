@@ -265,6 +265,7 @@ var GigyaDataservice = function () {
                   gigyaSettings: siteConfig.gigyaSettings,
                   services: siteConfig.services,
                   urlShorteners: siteConfig.urlShorteners,
+                  trustedSiteURLs: siteConfig.trustedSiteURLs,
                   trustedShareURLs: siteConfig.trustedShareURLs,
                   siteGroupConfig: siteConfig.siteGroupConfig,
                   logoutURL: siteConfig.logoutURL,

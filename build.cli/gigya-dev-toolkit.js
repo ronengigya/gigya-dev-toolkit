@@ -506,6 +506,9 @@ var toolkit = function _callee(_ref) {
             params['siteConfig'].baseDomain = newSiteBaseDomain;
             params['siteConfig'].description = newSiteDescription;
             params['siteConfig'].dataCenter = newSiteDataCenter;
+
+            // Default to the provided base domain.
+            delete params['siteConfig'].trustedSiteURLs;
           }
 
           // Update via API call
