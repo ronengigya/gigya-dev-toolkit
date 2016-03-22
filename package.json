@@ -1,6 +1,6 @@
 {
   "name": "gigya-dev-toolkit",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "description": "Gigya developer toolkit for common tasks, with a focus on ease-of-use and automation. All tools are available from both a web browser and an interactive command-line.",
   "main": "./build.cli/dataservices/gigya.dataservice.js",
   "scripts": {
@@ -26,7 +26,6 @@
     "jquery.actual": "dreamerslab/jquery.actual",
     "lodash": "4.6.1",
     "lz-string": "1.4.4",
-    "minifyify": "7.3.2",
     "superagent": "1.8.1"
   },
   "devDependencies": {
@@ -53,7 +52,8 @@
     "stringify": "5.1.0",
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
-    "watchify": "3.7.0"
+    "watchify": "3.7.0",
+    "minifyify": "7.3.2"
   },
   "repository": {
     "type": "git",
