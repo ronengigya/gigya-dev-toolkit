@@ -6,6 +6,16 @@ const _ = require('lodash');
 class GigyaDataservice {
   static _cacheMap = new Map();
 
+  static fetchPartner({ userKey, userSecret, partnerId }) {
+    return GigyaDataservice._api({
+      endpoint: 'admin.getPartner',
+      userKey,
+      userSecret,
+      params: { partnerID: partnerId },
+      isUseCache: true
+    });
+  }
+
   static fetchUserSites({ userKey, userSecret, partnerId }) {
     return GigyaDataservice._api({
       endpoint: 'admin.getUserSites',
@@ -118,6 +128,9 @@ class GigyaDataservice {
   }
 
   static async updateSiteConfig({ userKey, userSecret, partnerId, apiKey, siteConfig, copyEverything = true }) {
+    // Clone site configuration because we may modify it
+    siteConfig = _.cloneDeep(siteConfig);
+
     // Check to see if we're trying to create a new site
     if(apiKey === 'new') {
       // Create API key and then call updateSiteConfig to set all other values.
@@ -127,12 +140,17 @@ class GigyaDataservice {
         description: siteConfig.description,
         dataCenter: siteConfig.dataCenter
       } });
-      copyEverything = true;
       apiKey = response.apiKey;
+
+      // We want to clone source config to new key
+      copyEverything = true;
+
+      // If the siteConfig is for a child site, the database shouldn't be active
+      _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
     }
 
-    // Remove settings that can't or shouldn't be automatically copied
-    // This gets overriden when a new site is created
+    // These settings are renewed because if a key already exists the basic configuration is typically static
+    // You don't want to _clone_ the source key to the destination, you want to copy all settings
     if(copyEverything === false) {
       delete siteConfig.description;
       delete siteConfig.baseDomain;
@@ -140,9 +158,7 @@ class GigyaDataservice {
       delete siteConfig.trustedSiteURLs;
       delete siteConfig.siteGroupOwner;
       delete siteConfig.logoutURL;
-      if(siteConfig.gigyaSettings) {
-        delete siteConfig.gigyaSettings.dsSize;
-      }
+      _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
     }
 
     // Requires 3 API calls
@@ -153,7 +169,6 @@ class GigyaDataservice {
       urlShorteners: siteConfig.urlShorteners,
       trustedSiteURLs: siteConfig.trustedSiteURLs,
       trustedShareURLs: siteConfig.trustedShareURLs,
-      siteGroupConfig: siteConfig.siteGroupConfig,
       logoutURL: siteConfig.logoutURL,
       siteGroupOwner: siteConfig.siteGroupOwner
     } });

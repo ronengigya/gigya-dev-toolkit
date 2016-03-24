@@ -47,11 +47,26 @@ var GigyaDataservice = function () {
   }
 
   (0, _createClass3.default)(GigyaDataservice, null, [{
-    key: 'fetchUserSites',
-    value: function fetchUserSites(_ref) {
+    key: 'fetchPartner',
+    value: function fetchPartner(_ref) {
       var userKey = _ref.userKey;
       var userSecret = _ref.userSecret;
       var partnerId = _ref.partnerId;
+
+      return GigyaDataservice._api({
+        endpoint: 'admin.getPartner',
+        userKey: userKey,
+        userSecret: userSecret,
+        params: { partnerID: partnerId },
+        isUseCache: true
+      });
+    }
+  }, {
+    key: 'fetchUserSites',
+    value: function fetchUserSites(_ref2) {
+      var userKey = _ref2.userKey;
+      var userSecret = _ref2.userSecret;
+      var partnerId = _ref2.partnerId;
 
       return GigyaDataservice._api({
         endpoint: 'admin.getUserSites',
@@ -66,10 +81,10 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'fetchSiteConfig',
-    value: function fetchSiteConfig(_ref2) {
-      var userKey = _ref2.userKey;
-      var userSecret = _ref2.userSecret;
-      var apiKey = _ref2.apiKey;
+    value: function fetchSiteConfig(_ref3) {
+      var userKey = _ref3.userKey;
+      var userSecret = _ref3.userSecret;
+      var apiKey = _ref3.apiKey;
       var siteConfig, providers, restrictions;
       return _regenerator2.default.async(function fetchSiteConfig$(_context) {
         while (1) {
@@ -144,10 +159,10 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'fetchSchema',
-    value: function fetchSchema(_ref3) {
-      var userKey = _ref3.userKey;
-      var userSecret = _ref3.userSecret;
-      var apiKey = _ref3.apiKey;
+    value: function fetchSchema(_ref4) {
+      var userKey = _ref4.userKey;
+      var userSecret = _ref4.userSecret;
+      var apiKey = _ref4.apiKey;
 
       return GigyaDataservice._api({ endpoint: 'accounts.getSchema', userKey: userKey, userSecret: userSecret, params: { apiKey: apiKey }, transform: function transform(schema) {
           // Profile schema has a bunch of things that are read-only
@@ -181,19 +196,19 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'fetchPolicies',
-    value: function fetchPolicies(_ref4) {
-      var userKey = _ref4.userKey;
-      var userSecret = _ref4.userSecret;
-      var apiKey = _ref4.apiKey;
+    value: function fetchPolicies(_ref5) {
+      var userKey = _ref5.userKey;
+      var userSecret = _ref5.userSecret;
+      var apiKey = _ref5.apiKey;
 
       return GigyaDataservice._api({ endpoint: 'accounts.getPolicies', userKey: userKey, userSecret: userSecret, params: { apiKey: apiKey } });
     }
   }, {
     key: 'fetchScreensets',
-    value: function fetchScreensets(_ref5) {
-      var userKey = _ref5.userKey;
-      var userSecret = _ref5.userSecret;
-      var apiKey = _ref5.apiKey;
+    value: function fetchScreensets(_ref6) {
+      var userKey = _ref6.userKey;
+      var userSecret = _ref6.userSecret;
+      var apiKey = _ref6.apiKey;
 
       return GigyaDataservice._api({
         endpoint: 'accounts.getScreenSets',
@@ -210,25 +225,30 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'updateSiteConfig',
-    value: function updateSiteConfig(_ref6) {
-      var userKey = _ref6.userKey;
-      var userSecret = _ref6.userSecret;
-      var partnerId = _ref6.partnerId;
-      var apiKey = _ref6.apiKey;
-      var siteConfig = _ref6.siteConfig;
-      var _ref6$copyEverything = _ref6.copyEverything;
-      var copyEverything = _ref6$copyEverything === undefined ? true : _ref6$copyEverything;
+    value: function updateSiteConfig(_ref7) {
+      var userKey = _ref7.userKey;
+      var userSecret = _ref7.userSecret;
+      var partnerId = _ref7.partnerId;
+      var apiKey = _ref7.apiKey;
+      var siteConfig = _ref7.siteConfig;
+      var _ref7$copyEverything = _ref7.copyEverything;
+      var copyEverything = _ref7$copyEverything === undefined ? true : _ref7$copyEverything;
       var response;
       return _regenerator2.default.async(function updateSiteConfig$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
+              // Clone site configuration because we may modify it
+              siteConfig = _.cloneDeep(siteConfig);
+
+              // Check to see if we're trying to create a new site
+
               if (!(apiKey === 'new')) {
-                _context2.next = 6;
+                _context2.next = 8;
                 break;
               }
 
-              _context2.next = 3;
+              _context2.next = 4;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'admin.createSite', userKey: userKey, userSecret: userSecret, params: {
                   partnerID: partnerId,
                   baseDomain: siteConfig.baseDomain,
@@ -236,16 +256,21 @@ var GigyaDataservice = function () {
                   dataCenter: siteConfig.dataCenter
                 } }));
 
-            case 3:
+            case 4:
               response = _context2.sent;
 
-              copyEverything = true;
               apiKey = response.apiKey;
 
-            case 6:
+              // We want to clone source config to new key
+              copyEverything = true;
 
-              // Remove settings that can't or shouldn't be automatically copied
-              // This gets overriden when a new site is created
+              // If the siteConfig is for a child site, the database shouldn't be active
+              _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
+
+            case 8:
+
+              // These settings are renewed because if a key already exists the basic configuration is typically static
+              // You don't want to _clone_ the source key to the destination, you want to copy all settings
               if (copyEverything === false) {
                 delete siteConfig.description;
                 delete siteConfig.baseDomain;
@@ -253,13 +278,11 @@ var GigyaDataservice = function () {
                 delete siteConfig.trustedSiteURLs;
                 delete siteConfig.siteGroupOwner;
                 delete siteConfig.logoutURL;
-                if (siteConfig.gigyaSettings) {
-                  delete siteConfig.gigyaSettings.dsSize;
-                }
+                _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
               }
 
               // Requires 3 API calls
-              _context2.next = 9;
+              _context2.next = 11;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'admin.setSiteConfig', userKey: userKey, userSecret: userSecret, params: {
                   apiKey: apiKey,
                   gigyaSettings: siteConfig.gigyaSettings,
@@ -267,13 +290,12 @@ var GigyaDataservice = function () {
                   urlShorteners: siteConfig.urlShorteners,
                   trustedSiteURLs: siteConfig.trustedSiteURLs,
                   trustedShareURLs: siteConfig.trustedShareURLs,
-                  siteGroupConfig: siteConfig.siteGroupConfig,
                   logoutURL: siteConfig.logoutURL,
                   siteGroupOwner: siteConfig.siteGroupOwner
                 } }));
 
-            case 9:
-              _context2.next = 11;
+            case 11:
+              _context2.next = 13;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'socialize.setProvidersConfig',
                 userKey: userKey,
@@ -286,8 +308,8 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 11:
-              _context2.next = 13;
+            case 13:
+              _context2.next = 15;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'admin.setRestrictions',
                 userKey: userKey,
@@ -301,10 +323,10 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 13:
+            case 15:
               return _context2.abrupt('return', { apiKey: apiKey });
 
-            case 14:
+            case 16:
             case 'end':
               return _context2.stop();
           }
@@ -313,11 +335,11 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'updateSchema',
-    value: function updateSchema(_ref7) {
-      var userKey = _ref7.userKey;
-      var userSecret = _ref7.userSecret;
-      var apiKey = _ref7.apiKey;
-      var schema = _ref7.schema;
+    value: function updateSchema(_ref8) {
+      var userKey = _ref8.userKey;
+      var userSecret = _ref8.userSecret;
+      var apiKey = _ref8.apiKey;
+      var schema = _ref8.schema;
 
       var params, schemaTypes, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, schemaType, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _step2$value, key, _schema;
 
@@ -477,11 +499,11 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'updatePolicies',
-    value: function updatePolicies(_ref8) {
-      var userKey = _ref8.userKey;
-      var userSecret = _ref8.userSecret;
-      var apiKey = _ref8.apiKey;
-      var policies = _ref8.policies;
+    value: function updatePolicies(_ref9) {
+      var userKey = _ref9.userKey;
+      var userSecret = _ref9.userSecret;
+      var apiKey = _ref9.apiKey;
+      var policies = _ref9.policies;
 
       var params, keysToRemove, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, keyToRemove;
 
@@ -574,18 +596,18 @@ var GigyaDataservice = function () {
     }
   }, {
     key: 'updateScreensets',
-    value: function updateScreensets(_ref9) {
-      var userKey = _ref9.userKey;
-      var userSecret = _ref9.userSecret;
-      var apiKey = _ref9.apiKey;
-      var screensets = _ref9.screensets;
+    value: function updateScreensets(_ref10) {
+      var userKey = _ref10.userKey;
+      var userSecret = _ref10.userSecret;
+      var apiKey = _ref10.apiKey;
+      var screensets = _ref10.screensets;
 
       var promises = [];
-      _.each(screensets, function (_ref10) {
-        var screenSetID = _ref10.screenSetID;
-        var html = _ref10.html;
-        var css = _ref10.css;
-        var metadata = _ref10.metadata;
+      _.each(screensets, function (_ref11) {
+        var screenSetID = _ref11.screenSetID;
+        var html = _ref11.html;
+        var css = _ref11.css;
+        var metadata = _ref11.metadata;
 
         var params = { apiKey: apiKey, screenSetID: screenSetID, html: html, css: css, metadata: metadata };
         promises.push(GigyaDataservice._api({ endpoint: 'accounts.setScreenSet', userKey: userKey, userSecret: userSecret, params: params }));
@@ -594,16 +616,16 @@ var GigyaDataservice = function () {
     }
   }, {
     key: '_api',
-    value: function _api(_ref11) {
-      var _ref11$apiDomain = _ref11.apiDomain;
-      var apiDomain = _ref11$apiDomain === undefined ? 'us1.gigya.com' : _ref11$apiDomain;
-      var endpoint = _ref11.endpoint;
-      var userKey = _ref11.userKey;
-      var userSecret = _ref11.userSecret;
-      var params = _ref11.params;
-      var transform = _ref11.transform;
-      var _ref11$isUseCache = _ref11.isUseCache;
-      var isUseCache = _ref11$isUseCache === undefined ? false : _ref11$isUseCache;
+    value: function _api(_ref12) {
+      var _ref12$apiDomain = _ref12.apiDomain;
+      var apiDomain = _ref12$apiDomain === undefined ? 'us1.gigya.com' : _ref12$apiDomain;
+      var endpoint = _ref12.endpoint;
+      var userKey = _ref12.userKey;
+      var userSecret = _ref12.userSecret;
+      var params = _ref12.params;
+      var transform = _ref12.transform;
+      var _ref12$isUseCache = _ref12.isUseCache;
+      var isUseCache = _ref12$isUseCache === undefined ? false : _ref12$isUseCache;
 
       return new _promise2.default(function (resolve, reject) {
         params = params ? _.cloneDeep(params) : {};
