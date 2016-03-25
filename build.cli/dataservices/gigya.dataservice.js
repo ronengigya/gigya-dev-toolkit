@@ -243,7 +243,7 @@ var GigyaDataservice = function () {
 
               // Check to see if we're trying to create a new site
 
-              if (!(apiKey === 'new')) {
+              if (!(apiKey === '_new')) {
                 _context2.next = 8;
                 break;
               }

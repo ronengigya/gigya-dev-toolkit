@@ -370,7 +370,7 @@ var toolkit = function _callee(_ref) {
           // Add new site option to destination API key if importing site config
 
           if (task !== 'validate' && settings.indexOf('siteConfig') !== -1) {
-            choices.unshift({ name: 'NEW_SITE', value: 'new' });
+            choices.unshift({ name: 'NEW_SITE', value: '_new' });
           }
 
           return _context.abrupt('return', {
@@ -386,7 +386,7 @@ var toolkit = function _callee(_ref) {
           });
 
         case 94:
-          if (!(destinationApiKeys.indexOf('new') !== -1)) {
+          if (!(destinationApiKeys.indexOf('_new') !== -1)) {
             _context.next = 101;
             break;
           }
@@ -502,7 +502,7 @@ var toolkit = function _callee(_ref) {
 
           // If the destinationApiKey is new, override specific params
 
-          if (destinationApiKey === 'new') {
+          if (destinationApiKey === '_new') {
             params['siteConfig'].baseDomain = newSiteBaseDomain;
             params['siteConfig'].description = newSiteDescription;
             params['siteConfig'].dataCenter = newSiteDataCenter;

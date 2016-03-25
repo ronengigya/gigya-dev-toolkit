@@ -132,7 +132,7 @@ class GigyaDataservice {
     siteConfig = _.cloneDeep(siteConfig);
 
     // Check to see if we're trying to create a new site
-    if(apiKey === 'new') {
+    if(apiKey === '_new') {
       // Create API key and then call updateSiteConfig to set all other values.
       const response = await GigyaDataservice._api({ endpoint: 'admin.createSite', userKey, userSecret, params: {
         partnerID: partnerId,
