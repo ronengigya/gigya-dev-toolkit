@@ -265,7 +265,9 @@ var GigyaDataservice = function () {
               copyEverything = true;
 
               // If the siteConfig is for a child site, the database shouldn't be active
-              _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
+              if (siteConfig.siteGroupOwner) {
+                _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
+              }
 
             case 8:
 
