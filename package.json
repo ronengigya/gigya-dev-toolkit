@@ -1,6 +1,6 @@
 {
   "name": "gigya-dev-toolkit",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "description": "Gigya developer toolkit for common tasks, with a focus on ease-of-use and automation. All tools are available from both a web browser and an interactive command-line.",
   "main": "./build.cli/dataservices/gigya.dataservice.js",
   "scripts": {

@@ -66,6 +66,8 @@ class GigyaDataservice {
         includeSettings: true
       }
     });
+    providers.permissions = providers.settings;
+    delete providers.settings;
     const restrictions = await GigyaDataservice._api({
       endpoint: 'admin.getRestrictions',
       userKey,
@@ -172,7 +174,8 @@ class GigyaDataservice {
       trustedSiteURLs: siteConfig.trustedSiteURLs,
       trustedShareURLs: siteConfig.trustedShareURLs,
       logoutURL: siteConfig.logoutURL,
-      siteGroupOwner: siteConfig.siteGroupOwner
+      siteGroupOwner: siteConfig.siteGroupOwner,
+      settings: siteConfig.settings
     } });
     await GigyaDataservice._api({
       endpoint: 'socialize.setProvidersConfig',
@@ -182,7 +185,7 @@ class GigyaDataservice {
         apiKey,
         providers: siteConfig.providers,
         capabilities: siteConfig.capabilities,
-        settings: siteConfig.settings
+        settings: siteConfig.permissions
       }
     });
     await GigyaDataservice._api({

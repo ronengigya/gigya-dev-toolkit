@@ -135,7 +135,10 @@ var GigyaDataservice = function () {
 
             case 5:
               providers = _context.sent;
-              _context.next = 8;
+
+              providers.permissions = providers.settings;
+              delete providers.settings;
+              _context.next = 10;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'admin.getRestrictions',
                 userKey: userKey,
@@ -146,11 +149,11 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 8:
+            case 10:
               restrictions = _context.sent;
               return _context.abrupt('return', _.merge(siteConfig, restrictions, providers));
 
-            case 10:
+            case 12:
             case 'end':
               return _context.stop();
           }
@@ -293,7 +296,8 @@ var GigyaDataservice = function () {
                   trustedSiteURLs: siteConfig.trustedSiteURLs,
                   trustedShareURLs: siteConfig.trustedShareURLs,
                   logoutURL: siteConfig.logoutURL,
-                  siteGroupOwner: siteConfig.siteGroupOwner
+                  siteGroupOwner: siteConfig.siteGroupOwner,
+                  settings: siteConfig.settings
                 } }));
 
             case 11:
@@ -306,7 +310,7 @@ var GigyaDataservice = function () {
                   apiKey: apiKey,
                   providers: siteConfig.providers,
                   capabilities: siteConfig.capabilities,
-                  settings: siteConfig.settings
+                  settings: siteConfig.permissions
                 }
               }));
 
