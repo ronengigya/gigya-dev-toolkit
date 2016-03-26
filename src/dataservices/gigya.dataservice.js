@@ -146,11 +146,11 @@ class GigyaDataservice {
 
       // We want to clone source config to new key
       copyEverything = true;
+    }
 
-      // If the siteConfig is for a child site, the database shouldn't be active
-      if(siteConfig.siteGroupOwner) {
-        _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
-      }
+    // If the siteConfig is for a child site, the database shouldn't be active
+    if(siteConfig.siteGroupOwner) {
+      _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
     }
 
     // These settings are renewed because if a key already exists the basic configuration is typically static
@@ -168,6 +168,7 @@ class GigyaDataservice {
     // Requires 3 API calls
     await GigyaDataservice._api({ endpoint: 'admin.setSiteConfig', userKey, userSecret, params: {
       apiKey,
+      description: siteConfig.description,
       gigyaSettings: siteConfig.gigyaSettings,
       services: siteConfig.services,
       urlShorteners: siteConfig.urlShorteners,

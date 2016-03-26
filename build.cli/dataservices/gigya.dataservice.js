@@ -247,7 +247,7 @@ var GigyaDataservice = function () {
               // Check to see if we're trying to create a new site
 
               if (!(apiKey === '_new')) {
-                _context2.next = 8;
+                _context2.next = 7;
                 break;
               }
 
@@ -267,12 +267,12 @@ var GigyaDataservice = function () {
               // We want to clone source config to new key
               copyEverything = true;
 
+            case 7:
+
               // If the siteConfig is for a child site, the database shouldn't be active
               if (siteConfig.siteGroupOwner) {
                 _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
               }
-
-            case 8:
 
               // These settings are renewed because if a key already exists the basic configuration is typically static
               // You don't want to _clone_ the source key to the destination, you want to copy all settings
@@ -290,6 +290,7 @@ var GigyaDataservice = function () {
               _context2.next = 11;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'admin.setSiteConfig', userKey: userKey, userSecret: userSecret, params: {
                   apiKey: apiKey,
+                  description: siteConfig.description,
                   gigyaSettings: siteConfig.gigyaSettings,
                   services: siteConfig.services,
                   urlShorteners: siteConfig.urlShorteners,
