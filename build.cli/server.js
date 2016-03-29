@@ -13,7 +13,7 @@ app.use(bodyParser.json({ limit: payloadLimit }));
 app.use(bodyParser.urlencoded({ extended: true, limit: payloadLimit }));
 
 // Serve index.html and associated files
-app.use(express.static(__dirname + '/build.browser'));
+app.use(express.static(__dirname + '/../build.browser'));
 
 // Proxy Gigya API requests
 // This is necessary because GET requests are too small when updating settings
