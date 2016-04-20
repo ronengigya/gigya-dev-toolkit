@@ -129,7 +129,7 @@ class GigyaDataservice {
     });
   }
 
-  static async updateSiteConfig({ userKey, userSecret, partnerId, apiKey, siteConfig, copyEverything = true }) {
+  static async updateSiteConfig({ userKey, userSecret, partnerId, apiKey, siteConfig, copyEverything = false }) {
     // Clone site configuration because we may modify it
     siteConfig = _.cloneDeep(siteConfig);
 

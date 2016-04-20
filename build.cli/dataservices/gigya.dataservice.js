@@ -235,7 +235,7 @@ var GigyaDataservice = function () {
       var apiKey = _ref7.apiKey;
       var siteConfig = _ref7.siteConfig;
       var _ref7$copyEverything = _ref7.copyEverything;
-      var copyEverything = _ref7$copyEverything === undefined ? true : _ref7$copyEverything;
+      var copyEverything = _ref7$copyEverything === undefined ? false : _ref7$copyEverything;
       var response;
       return _regenerator2.default.async(function updateSiteConfig$(_context2) {
         while (1) {
