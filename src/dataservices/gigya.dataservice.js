@@ -77,7 +77,52 @@ class GigyaDataservice {
         include: 'BlockedIPs,BlockedWords'
       }
     });
-    return _.merge(siteConfig, restrictions, providers);
+    const response = _.merge(siteConfig, providers);
+
+    // Attempt to add SAML configuration to response.
+    try {
+      const samlLoginConfig = await GigyaDataservice._api({
+        endpoint: 'fidm.saml.getConfig',
+        userKey,
+        userSecret,
+        params: {
+          apiKey
+        }
+      });
+      const registeredIdPs = await GigyaDataservice._api({
+        endpoint: 'fidm.saml.getRegisteredIdPs',
+        userKey,
+        userSecret,
+        params: {
+          apiKey
+        }
+      });
+      const samlIdpConfig = await GigyaDataservice._api({
+        endpoint: 'fidm.saml.idp.getConfig',
+        userKey,
+        userSecret,
+        params: {
+          apiKey
+        }
+      });
+      const registeredSPs = await GigyaDataservice._api({
+        endpoint: 'fidm.saml.idp.getRegisteredSPs',
+        userKey,
+        userSecret,
+        params: {
+          apiKey
+        }
+      });
+      response.saml = {
+        idp: _.assign(samlLoginConfig.config, { registeredIdPs: registeredIdPs.configs }),
+        sp: _.assign(samlIdpConfig.config, { registeredSPs: registeredSPs.configs })
+      };
+    } catch(e) {}
+
+    // We want this at the bottom because the list is annoying.
+    _.merge(response, restrictions);
+
+    return response;
   }
 
   static fetchSchema({ userKey, userSecret, apiKey }) {
@@ -199,6 +244,56 @@ class GigyaDataservice {
         blockedWords: siteConfig.blockedWords
       }
     });
+
+    for(const idpConfig of _.get(siteConfig, 'saml.idp.registeredIdPs', [])) {
+      await GigyaDataservice._api({
+        endpoint: 'fidm.saml.fidm.registerIdP',
+        userKey,
+        userSecret,
+        params: {
+          apiKey,
+          config: idpConfig
+        }
+      });
+    }
+
+    for(const spConfig of _.get(siteConfig, 'saml.sp.registeredSPs', [])) {
+      await GigyaDataservice._api({
+        endpoint: 'fidm.saml.idp.registerSP',
+        userKey,
+        userSecret,
+        params: {
+          apiKey,
+          config: spConfig
+        }
+      });
+    }
+
+    if(_.get(siteConfig, 'saml.idp')) {
+      delete siteConfig.saml.idp.registeredIdPs;
+      await GigyaDataservice._api({
+        endpoint: 'fidm.saml.setConfig',
+        userKey,
+        userSecret,
+        params: {
+          apiKey,
+          config: siteConfig.saml.idp
+        }
+      });
+    }
+
+    if(_.get(siteConfig, 'saml.sp')) {
+      delete siteConfig.saml.sp.registeredSPs;
+      await GigyaDataservice._api({
+        endpoint: 'fidm.saml.idp.setConfig',
+        userKey,
+        userSecret,
+        params: {
+          apiKey,
+          config: siteConfig.saml.sp
+        }
+      });
+    }
 
     return { apiKey };
   }
