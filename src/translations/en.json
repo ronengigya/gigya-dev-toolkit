@@ -14,6 +14,7 @@
   "SCHEMA": "Schema",
   "SCREENSETS": "Screensets",
   "POLICIES": "Policies",
+  "LOYALTY_CONFIG": "Loyalty Config",
   "TASK": "Task",
   "EXPORT": "Export",
   "IMPORT": "Import",

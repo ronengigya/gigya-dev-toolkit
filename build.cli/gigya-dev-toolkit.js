@@ -227,7 +227,7 @@ var toolkit = function _callee(_ref) {
                 type: task !== 'import' ? 'checkbox' : 'list', // TODO: Import multiple settings at a time
                 name: 'settings',
                 message: task !== 'import' ? 'SETTINGS' : 'SETTING',
-                choices: [{ name: 'SITE_CONFIG', value: 'siteConfig' }, { name: 'SCREENSETS', value: 'screensets' }, { name: 'SCHEMA', value: 'schema' }, { name: 'POLICIES', value: 'policies' }]
+                choices: [{ name: 'SITE_CONFIG', value: 'siteConfig' }, { name: 'SCREENSETS', value: 'screensets' }, { name: 'SCHEMA', value: 'schema' }, { name: 'POLICIES', value: 'policies' }, { name: 'LOYALTY_CONFIG', value: 'loyaltyConfig' }]
               }
             }
           });

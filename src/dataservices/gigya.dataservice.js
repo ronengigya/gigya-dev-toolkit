@@ -298,6 +298,99 @@ class GigyaDataservice {
     return { apiKey };
   }
 
+  static async fetchLoyaltyConfig({ userKey, userSecret, apiKey }) {
+    const globalConfig = await GigyaDataservice._api({
+      endpoint: 'gm.setGlobalConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey
+      }
+    });
+
+    const actionConfig = await GigyaDataservice._api({
+      endpoint: 'gm.getActionConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        lang: 'all',
+        includeDisabledActions: true
+      }
+    }); 
+
+    const challengeConfig = await GigyaDataservice._api({
+      endpoint: 'gm.getChallengeConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        lang: 'all',
+        expandActions: true,
+        includeDisabledChallenges: true,
+        includeDisabledActions: true
+      }
+    });
+
+    // Gigya returns JSON inside of strings for localized text.
+    // Convert to real JSON.
+    function realJson(obj) {
+      if(_.isObject(obj)) {
+        for(const key in obj) {
+          if(_.isString(obj[key]) && obj[key].indexOf('{') === 0) {
+            try {
+              obj[key] = JSON.parse(obj[key]);
+            } catch(e) {}
+          } else if(_.isObject(obj[key])) {
+            realJson(obj[key]);
+          }
+        }
+      }
+    }
+    realJson(actionConfig);
+    realJson(challengeConfig);
+
+    return {
+      callbackURL: globalConfig.callbackURL,
+      allowClientSideActionNotifications: globalConfig.allowClientSideActionNotifications,
+      actions: actionConfig.actions,
+      challenges: challengeConfig.challenges
+    };
+  }
+
+  static async updateLoyaltyConfig({ userKey, userSecret, apiKey, loyaltyConfig: { callbackURL, allowClientSideActionNotifications, actions, challenges } }) {
+    await GigyaDataservice._api({
+      endpoint: 'gm.setGlobalConfig',
+      userKey,
+      userSecret,
+      params: {
+        apiKey,
+        callbackURL,
+        allowClientSideActionNotifications
+      }
+    });
+
+    for(const action of actions) {
+      action.apiKey = apiKey;
+      await GigyaDataservice._api({
+        endpoint: 'gm.setActionConfig',
+        userKey,
+        userSecret,
+        params: action
+      });
+    }
+
+    for(const challenge of challenges) {
+      challenge.apiKey = apiKey;
+      await GigyaDataservice._api({
+        endpoint: 'gm.setChallengeConfig',
+        userKey,
+        userSecret,
+        params: challenge
+      });
+    }
+  }
+
   static async updateSchema({ userKey, userSecret, apiKey, schema }) {
     const params = {
       apiKey,

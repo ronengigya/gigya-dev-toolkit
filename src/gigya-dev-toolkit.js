@@ -121,7 +121,8 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
             { name: 'SITE_CONFIG', value: 'siteConfig' },
             { name: 'SCREENSETS', value: 'screensets' },
             { name: 'SCHEMA', value: 'schema' },
-            { name: 'POLICIES', value: 'policies' }
+            { name: 'POLICIES', value: 'policies' },
+            { name: 'LOYALTY_CONFIG', value: 'loyaltyConfig' }
           ]
         }
       }

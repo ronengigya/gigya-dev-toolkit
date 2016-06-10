@@ -577,241 +577,176 @@ var GigyaDataservice = function () {
       }, null, this, [[18, 29, 33, 41], [34,, 36, 40], [44, 55, 59, 67], [60,, 62, 66]]);
     }
   }, {
-    key: 'updateSchema',
-    value: function updateSchema(_ref8) {
+    key: 'fetchLoyaltyConfig',
+    value: function fetchLoyaltyConfig(_ref8) {
       var userKey = _ref8.userKey;
       var userSecret = _ref8.userSecret;
       var apiKey = _ref8.apiKey;
-      var schema = _ref8.schema;
-
-      var params, schemaTypes, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, schemaType, _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, _step4$value, key, _schema;
-
-      return _regenerator2.default.async(function updateSchema$(_context3) {
+      var globalConfig, actionConfig, challengeConfig, realJson;
+      return _regenerator2.default.async(function fetchLoyaltyConfig$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              params = {
-                apiKey: apiKey,
-                profileSchema: schema.profileSchema,
-                dataSchema: schema.dataSchema
+              realJson = function realJson(obj) {
+                if (_.isObject(obj)) {
+                  for (var key in obj) {
+                    if (_.isString(obj[key]) && obj[key].indexOf('{') === 0) {
+                      try {
+                        obj[key] = JSON.parse(obj[key]);
+                      } catch (e) {}
+                    } else if (_.isObject(obj[key])) {
+                      realJson(obj[key]);
+                    }
+                  }
+                }
               };
-              _context3.prev = 1;
-              _context3.next = 4;
-              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: params }));
 
-            case 4:
-              _context3.next = 61;
-              break;
+              _context3.next = 3;
+              return _regenerator2.default.awrap(GigyaDataservice._api({
+                endpoint: 'gm.setGlobalConfig',
+                userKey: userKey,
+                userSecret: userSecret,
+                params: {
+                  apiKey: apiKey
+                }
+              }));
+
+            case 3:
+              globalConfig = _context3.sent;
+              _context3.next = 6;
+              return _regenerator2.default.awrap(GigyaDataservice._api({
+                endpoint: 'gm.getActionConfig',
+                userKey: userKey,
+                userSecret: userSecret,
+                params: {
+                  apiKey: apiKey,
+                  lang: 'all',
+                  includeDisabledActions: true
+                }
+              }));
 
             case 6:
-              _context3.prev = 6;
-              _context3.t0 = _context3['catch'](1);
+              actionConfig = _context3.sent;
+              _context3.next = 9;
+              return _regenerator2.default.awrap(GigyaDataservice._api({
+                endpoint: 'gm.getChallengeConfig',
+                userKey: userKey,
+                userSecret: userSecret,
+                params: {
+                  apiKey: apiKey,
+                  lang: 'all',
+                  expandActions: true,
+                  includeDisabledChallenges: true,
+                  includeDisabledActions: true
+                }
+              }));
 
-              if (!(_context3.t0.code === 400020)) {
-                _context3.next = 60;
-                break;
-              }
+            case 9:
+              challengeConfig = _context3.sent;
 
-              // Target group schema.
-              params.scope = 'site';
+              realJson(actionConfig);
+              realJson(challengeConfig);
 
-              // Only send "required" attribute.
-              schemaTypes = ['profileSchema', 'dataSchema'];
-              _iteratorNormalCompletion3 = true;
-              _didIteratorError3 = false;
-              _iteratorError3 = undefined;
-              _context3.prev = 14;
-              _iterator3 = (0, _getIterator3.default)(schemaTypes);
+              return _context3.abrupt('return', {
+                callbackURL: globalConfig.callbackURL,
+                allowClientSideActionNotifications: globalConfig.allowClientSideActionNotifications,
+                actions: actionConfig.actions,
+                challenges: challengeConfig.challenges
+              });
 
-            case 16:
-              if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
-                _context3.next = 42;
-                break;
-              }
-
-              schemaType = _step3.value;
-
-              delete params[schemaType].dynamicSchema;
-
-              if (!(params[schemaType] && params[schemaType].fields)) {
-                _context3.next = 39;
-                break;
-              }
-
-              _iteratorNormalCompletion4 = true;
-              _didIteratorError4 = false;
-              _iteratorError4 = undefined;
-              _context3.prev = 23;
-
-              for (_iterator4 = (0, _getIterator3.default)((0, _entries2.default)(params[schemaType].fields)); !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                _step4$value = (0, _slicedToArray3.default)(_step4.value, 2);
-                key = _step4$value[0];
-                _schema = _step4$value[1];
-
-                params[schemaType].fields[key] = { required: _schema.required };
-              }
-              _context3.next = 31;
-              break;
-
-            case 27:
-              _context3.prev = 27;
-              _context3.t1 = _context3['catch'](23);
-              _didIteratorError4 = true;
-              _iteratorError4 = _context3.t1;
-
-            case 31:
-              _context3.prev = 31;
-              _context3.prev = 32;
-
-              if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                _iterator4.return();
-              }
-
-            case 34:
-              _context3.prev = 34;
-
-              if (!_didIteratorError4) {
-                _context3.next = 37;
-                break;
-              }
-
-              throw _iteratorError4;
-
-            case 37:
-              return _context3.finish(34);
-
-            case 38:
-              return _context3.finish(31);
-
-            case 39:
-              _iteratorNormalCompletion3 = true;
-              _context3.next = 16;
-              break;
-
-            case 42:
-              _context3.next = 48;
-              break;
-
-            case 44:
-              _context3.prev = 44;
-              _context3.t2 = _context3['catch'](14);
-              _didIteratorError3 = true;
-              _iteratorError3 = _context3.t2;
-
-            case 48:
-              _context3.prev = 48;
-              _context3.prev = 49;
-
-              if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                _iterator3.return();
-              }
-
-            case 51:
-              _context3.prev = 51;
-
-              if (!_didIteratorError3) {
-                _context3.next = 54;
-                break;
-              }
-
-              throw _iteratorError3;
-
-            case 54:
-              return _context3.finish(51);
-
-            case 55:
-              return _context3.finish(48);
-
-            case 56:
-              _context3.next = 58;
-              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: params }));
-
-            case 58:
-              _context3.next = 61;
-              break;
-
-            case 60:
-              throw _context3.t0;
-
-            case 61:
+            case 13:
             case 'end':
               return _context3.stop();
           }
         }
-      }, null, this, [[1, 6], [14, 44, 48, 56], [23, 27, 31, 39], [32,, 34, 38], [49,, 51, 55]]);
+      }, null, this);
     }
   }, {
-    key: 'updatePolicies',
-    value: function updatePolicies(_ref9) {
+    key: 'updateLoyaltyConfig',
+    value: function updateLoyaltyConfig(_ref9) {
       var userKey = _ref9.userKey;
       var userSecret = _ref9.userSecret;
       var apiKey = _ref9.apiKey;
-      var policies = _ref9.policies;
+      var _ref9$loyaltyConfig = _ref9.loyaltyConfig;
+      var callbackURL = _ref9$loyaltyConfig.callbackURL;
+      var allowClientSideActionNotifications = _ref9$loyaltyConfig.allowClientSideActionNotifications;
+      var actions = _ref9$loyaltyConfig.actions;
+      var challenges = _ref9$loyaltyConfig.challenges;
 
-      var params, keysToRemove, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, keyToRemove;
+      var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, action, _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, challenge;
 
-      return _regenerator2.default.async(function updatePolicies$(_context4) {
+      return _regenerator2.default.async(function updateLoyaltyConfig$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              params = _.extend({}, policies, { apiKey: apiKey });
-              _context4.prev = 1;
-              _context4.next = 4;
-              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey: userKey, userSecret: userSecret, params: params }));
+              _context4.next = 2;
+              return _regenerator2.default.awrap(GigyaDataservice._api({
+                endpoint: 'gm.setGlobalConfig',
+                userKey: userKey,
+                userSecret: userSecret,
+                params: {
+                  apiKey: apiKey,
+                  callbackURL: callbackURL,
+                  allowClientSideActionNotifications: allowClientSideActionNotifications
+                }
+              }));
 
-            case 4:
-              _context4.next = 34;
-              break;
+            case 2:
+              _iteratorNormalCompletion3 = true;
+              _didIteratorError3 = false;
+              _iteratorError3 = undefined;
+              _context4.prev = 5;
+              _iterator3 = (0, _getIterator3.default)(actions);
 
-            case 6:
-              _context4.prev = 6;
-              _context4.t0 = _context4['catch'](1);
-
-              if (!(_context4.t0.code === 400006 && _context4.t0.message.indexOf('Member sites may not override') !== -1)) {
-                _context4.next = 33;
+            case 7:
+              if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
+                _context4.next = 15;
                 break;
               }
 
-              // Remove group-level policies by parsing error message for keys to remove and try again.
-              keysToRemove = _context4.t0.message.substring(_context4.t0.message.indexOf('(') + 1, _context4.t0.message.indexOf(')')).split(',');
-              _iteratorNormalCompletion5 = true;
-              _didIteratorError5 = false;
-              _iteratorError5 = undefined;
-              _context4.prev = 13;
+              action = _step3.value;
 
-              for (_iterator5 = (0, _getIterator3.default)(keysToRemove); !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-                keyToRemove = _step5.value;
+              action.apiKey = apiKey;
+              _context4.next = 12;
+              return _regenerator2.default.awrap(GigyaDataservice._api({
+                endpoint: 'gm.setActionConfig',
+                userKey: userKey,
+                userSecret: userSecret,
+                params: action
+              }));
 
-                _.set(params, keyToRemove, undefined);
-              }
+            case 12:
+              _iteratorNormalCompletion3 = true;
+              _context4.next = 7;
+              break;
 
-              // We may need multiple rounds to remove all offending policies.
+            case 15:
               _context4.next = 21;
               break;
 
             case 17:
               _context4.prev = 17;
-              _context4.t1 = _context4['catch'](13);
-              _didIteratorError5 = true;
-              _iteratorError5 = _context4.t1;
+              _context4.t0 = _context4['catch'](5);
+              _didIteratorError3 = true;
+              _iteratorError3 = _context4.t0;
 
             case 21:
               _context4.prev = 21;
               _context4.prev = 22;
 
-              if (!_iteratorNormalCompletion5 && _iterator5.return) {
-                _iterator5.return();
+              if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                _iterator3.return();
               }
 
             case 24:
               _context4.prev = 24;
 
-              if (!_didIteratorError5) {
+              if (!_didIteratorError3) {
                 _context4.next = 27;
                 break;
               }
 
-              throw _iteratorError5;
+              throw _iteratorError3;
 
             case 27:
               return _context4.finish(24);
@@ -820,37 +755,350 @@ var GigyaDataservice = function () {
               return _context4.finish(21);
 
             case 29:
-              _context4.next = 31;
-              return _regenerator2.default.awrap(this.updatePolicies({ userKey: userKey, userSecret: userSecret, apiKey: apiKey, policies: params }));
+              _iteratorNormalCompletion4 = true;
+              _didIteratorError4 = false;
+              _iteratorError4 = undefined;
+              _context4.prev = 32;
+              _iterator4 = (0, _getIterator3.default)(challenges);
 
-            case 31:
+            case 34:
+              if (_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done) {
+                _context4.next = 42;
+                break;
+              }
+
+              challenge = _step4.value;
+
+              challenge.apiKey = apiKey;
+              _context4.next = 39;
+              return _regenerator2.default.awrap(GigyaDataservice._api({
+                endpoint: 'gm.setChallengeConfig',
+                userKey: userKey,
+                userSecret: userSecret,
+                params: challenge
+              }));
+
+            case 39:
+              _iteratorNormalCompletion4 = true;
               _context4.next = 34;
               break;
 
+            case 42:
+              _context4.next = 48;
+              break;
+
+            case 44:
+              _context4.prev = 44;
+              _context4.t1 = _context4['catch'](32);
+              _didIteratorError4 = true;
+              _iteratorError4 = _context4.t1;
+
+            case 48:
+              _context4.prev = 48;
+              _context4.prev = 49;
+
+              if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                _iterator4.return();
+              }
+
+            case 51:
+              _context4.prev = 51;
+
+              if (!_didIteratorError4) {
+                _context4.next = 54;
+                break;
+              }
+
+              throw _iteratorError4;
+
+            case 54:
+              return _context4.finish(51);
+
+            case 55:
+              return _context4.finish(48);
+
+            case 56:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, null, this, [[5, 17, 21, 29], [22,, 24, 28], [32, 44, 48, 56], [49,, 51, 55]]);
+    }
+  }, {
+    key: 'updateSchema',
+    value: function updateSchema(_ref10) {
+      var userKey = _ref10.userKey;
+      var userSecret = _ref10.userSecret;
+      var apiKey = _ref10.apiKey;
+      var schema = _ref10.schema;
+
+      var params, schemaTypes, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, schemaType, _iteratorNormalCompletion6, _didIteratorError6, _iteratorError6, _iterator6, _step6, _step6$value, key, _schema;
+
+      return _regenerator2.default.async(function updateSchema$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              params = {
+                apiKey: apiKey,
+                profileSchema: schema.profileSchema,
+                dataSchema: schema.dataSchema
+              };
+              _context5.prev = 1;
+              _context5.next = 4;
+              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: params }));
+
+            case 4:
+              _context5.next = 61;
+              break;
+
+            case 6:
+              _context5.prev = 6;
+              _context5.t0 = _context5['catch'](1);
+
+              if (!(_context5.t0.code === 400020)) {
+                _context5.next = 60;
+                break;
+              }
+
+              // Target group schema.
+              params.scope = 'site';
+
+              // Only send "required" attribute.
+              schemaTypes = ['profileSchema', 'dataSchema'];
+              _iteratorNormalCompletion5 = true;
+              _didIteratorError5 = false;
+              _iteratorError5 = undefined;
+              _context5.prev = 14;
+              _iterator5 = (0, _getIterator3.default)(schemaTypes);
+
+            case 16:
+              if (_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done) {
+                _context5.next = 42;
+                break;
+              }
+
+              schemaType = _step5.value;
+
+              delete params[schemaType].dynamicSchema;
+
+              if (!(params[schemaType] && params[schemaType].fields)) {
+                _context5.next = 39;
+                break;
+              }
+
+              _iteratorNormalCompletion6 = true;
+              _didIteratorError6 = false;
+              _iteratorError6 = undefined;
+              _context5.prev = 23;
+
+              for (_iterator6 = (0, _getIterator3.default)((0, _entries2.default)(params[schemaType].fields)); !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+                _step6$value = (0, _slicedToArray3.default)(_step6.value, 2);
+                key = _step6$value[0];
+                _schema = _step6$value[1];
+
+                params[schemaType].fields[key] = { required: _schema.required };
+              }
+              _context5.next = 31;
+              break;
+
+            case 27:
+              _context5.prev = 27;
+              _context5.t1 = _context5['catch'](23);
+              _didIteratorError6 = true;
+              _iteratorError6 = _context5.t1;
+
+            case 31:
+              _context5.prev = 31;
+              _context5.prev = 32;
+
+              if (!_iteratorNormalCompletion6 && _iterator6.return) {
+                _iterator6.return();
+              }
+
+            case 34:
+              _context5.prev = 34;
+
+              if (!_didIteratorError6) {
+                _context5.next = 37;
+                break;
+              }
+
+              throw _iteratorError6;
+
+            case 37:
+              return _context5.finish(34);
+
+            case 38:
+              return _context5.finish(31);
+
+            case 39:
+              _iteratorNormalCompletion5 = true;
+              _context5.next = 16;
+              break;
+
+            case 42:
+              _context5.next = 48;
+              break;
+
+            case 44:
+              _context5.prev = 44;
+              _context5.t2 = _context5['catch'](14);
+              _didIteratorError5 = true;
+              _iteratorError5 = _context5.t2;
+
+            case 48:
+              _context5.prev = 48;
+              _context5.prev = 49;
+
+              if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                _iterator5.return();
+              }
+
+            case 51:
+              _context5.prev = 51;
+
+              if (!_didIteratorError5) {
+                _context5.next = 54;
+                break;
+              }
+
+              throw _iteratorError5;
+
+            case 54:
+              return _context5.finish(51);
+
+            case 55:
+              return _context5.finish(48);
+
+            case 56:
+              _context5.next = 58;
+              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: params }));
+
+            case 58:
+              _context5.next = 61;
+              break;
+
+            case 60:
+              throw _context5.t0;
+
+            case 61:
+            case 'end':
+              return _context5.stop();
+          }
+        }
+      }, null, this, [[1, 6], [14, 44, 48, 56], [23, 27, 31, 39], [32,, 34, 38], [49,, 51, 55]]);
+    }
+  }, {
+    key: 'updatePolicies',
+    value: function updatePolicies(_ref11) {
+      var userKey = _ref11.userKey;
+      var userSecret = _ref11.userSecret;
+      var apiKey = _ref11.apiKey;
+      var policies = _ref11.policies;
+
+      var params, keysToRemove, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, keyToRemove;
+
+      return _regenerator2.default.async(function updatePolicies$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              params = _.extend({}, policies, { apiKey: apiKey });
+              _context6.prev = 1;
+              _context6.next = 4;
+              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey: userKey, userSecret: userSecret, params: params }));
+
+            case 4:
+              _context6.next = 34;
+              break;
+
+            case 6:
+              _context6.prev = 6;
+              _context6.t0 = _context6['catch'](1);
+
+              if (!(_context6.t0.code === 400006 && _context6.t0.message.indexOf('Member sites may not override') !== -1)) {
+                _context6.next = 33;
+                break;
+              }
+
+              // Remove group-level policies by parsing error message for keys to remove and try again.
+              keysToRemove = _context6.t0.message.substring(_context6.t0.message.indexOf('(') + 1, _context6.t0.message.indexOf(')')).split(',');
+              _iteratorNormalCompletion7 = true;
+              _didIteratorError7 = false;
+              _iteratorError7 = undefined;
+              _context6.prev = 13;
+
+              for (_iterator7 = (0, _getIterator3.default)(keysToRemove); !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                keyToRemove = _step7.value;
+
+                _.set(params, keyToRemove, undefined);
+              }
+
+              // We may need multiple rounds to remove all offending policies.
+              _context6.next = 21;
+              break;
+
+            case 17:
+              _context6.prev = 17;
+              _context6.t1 = _context6['catch'](13);
+              _didIteratorError7 = true;
+              _iteratorError7 = _context6.t1;
+
+            case 21:
+              _context6.prev = 21;
+              _context6.prev = 22;
+
+              if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                _iterator7.return();
+              }
+
+            case 24:
+              _context6.prev = 24;
+
+              if (!_didIteratorError7) {
+                _context6.next = 27;
+                break;
+              }
+
+              throw _iteratorError7;
+
+            case 27:
+              return _context6.finish(24);
+
+            case 28:
+              return _context6.finish(21);
+
+            case 29:
+              _context6.next = 31;
+              return _regenerator2.default.awrap(this.updatePolicies({ userKey: userKey, userSecret: userSecret, apiKey: apiKey, policies: params }));
+
+            case 31:
+              _context6.next = 34;
+              break;
+
             case 33:
-              throw _context4.t0;
+              throw _context6.t0;
 
             case 34:
             case 'end':
-              return _context4.stop();
+              return _context6.stop();
           }
         }
       }, null, this, [[1, 6], [13, 17, 21, 29], [22,, 24, 28]]);
     }
   }, {
     key: 'updateScreensets',
-    value: function updateScreensets(_ref10) {
-      var userKey = _ref10.userKey;
-      var userSecret = _ref10.userSecret;
-      var apiKey = _ref10.apiKey;
-      var screensets = _ref10.screensets;
+    value: function updateScreensets(_ref12) {
+      var userKey = _ref12.userKey;
+      var userSecret = _ref12.userSecret;
+      var apiKey = _ref12.apiKey;
+      var screensets = _ref12.screensets;
 
       var promises = [];
-      _.each(screensets, function (_ref11) {
-        var screenSetID = _ref11.screenSetID;
-        var html = _ref11.html;
-        var css = _ref11.css;
-        var metadata = _ref11.metadata;
+      _.each(screensets, function (_ref13) {
+        var screenSetID = _ref13.screenSetID;
+        var html = _ref13.html;
+        var css = _ref13.css;
+        var metadata = _ref13.metadata;
 
         var params = { apiKey: apiKey, screenSetID: screenSetID, html: html, css: css, metadata: metadata };
         promises.push(GigyaDataservice._api({ endpoint: 'accounts.setScreenSet', userKey: userKey, userSecret: userSecret, params: params }));
@@ -859,16 +1107,16 @@ var GigyaDataservice = function () {
     }
   }, {
     key: '_api',
-    value: function _api(_ref12) {
-      var _ref12$apiDomain = _ref12.apiDomain;
-      var apiDomain = _ref12$apiDomain === undefined ? 'us1.gigya.com' : _ref12$apiDomain;
-      var endpoint = _ref12.endpoint;
-      var userKey = _ref12.userKey;
-      var userSecret = _ref12.userSecret;
-      var params = _ref12.params;
-      var transform = _ref12.transform;
-      var _ref12$isUseCache = _ref12.isUseCache;
-      var isUseCache = _ref12$isUseCache === undefined ? false : _ref12$isUseCache;
+    value: function _api(_ref14) {
+      var _ref14$apiDomain = _ref14.apiDomain;
+      var apiDomain = _ref14$apiDomain === undefined ? 'us1.gigya.com' : _ref14$apiDomain;
+      var endpoint = _ref14.endpoint;
+      var userKey = _ref14.userKey;
+      var userSecret = _ref14.userSecret;
+      var params = _ref14.params;
+      var transform = _ref14.transform;
+      var _ref14$isUseCache = _ref14.isUseCache;
+      var isUseCache = _ref14$isUseCache === undefined ? false : _ref14$isUseCache;
 
       return new _promise2.default(function (resolve, reject) {
         params = params ? _.cloneDeep(params) : {};
@@ -877,16 +1125,16 @@ var GigyaDataservice = function () {
         params.secret = userSecret;
 
         // Serialize objects as JSON strings
-        var _iteratorNormalCompletion6 = true;
-        var _didIteratorError6 = false;
-        var _iteratorError6 = undefined;
+        var _iteratorNormalCompletion8 = true;
+        var _didIteratorError8 = false;
+        var _iteratorError8 = undefined;
 
         try {
-          for (var _iterator6 = (0, _getIterator3.default)((0, _entries2.default)(params)), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-            var _step6$value = (0, _slicedToArray3.default)(_step6.value, 2);
+          for (var _iterator8 = (0, _getIterator3.default)((0, _entries2.default)(params)), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+            var _step8$value = (0, _slicedToArray3.default)(_step8.value, 2);
 
-            var _key = _step6$value[0];
-            var param = _step6$value[1];
+            var _key = _step8$value[0];
+            var param = _step8$value[1];
 
             if (_.isObject(param)) {
               params[_key] = (0, _stringify2.default)(param);
@@ -895,16 +1143,16 @@ var GigyaDataservice = function () {
 
           // Fire request with params
         } catch (err) {
-          _didIteratorError6 = true;
-          _iteratorError6 = err;
+          _didIteratorError8 = true;
+          _iteratorError8 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion6 && _iterator6.return) {
-              _iterator6.return();
+            if (!_iteratorNormalCompletion8 && _iterator8.return) {
+              _iterator8.return();
             }
           } finally {
-            if (_didIteratorError6) {
-              throw _iteratorError6;
+            if (_didIteratorError8) {
+              throw _iteratorError8;
             }
           }
         }
