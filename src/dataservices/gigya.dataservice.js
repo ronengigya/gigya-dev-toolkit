@@ -5,6 +5,7 @@ const _ = require('lodash');
 
 class GigyaDataservice {
   static _cacheMap = new Map();
+  static _apiDomainMap = new Map();
 
   static fetchPartner({ userKey, userSecret, partnerId }) {
     return GigyaDataservice._api({
@@ -457,7 +458,8 @@ class GigyaDataservice {
     return promises;
   }
 
-  static _api({ apiDomain = 'us1.gigya.com', endpoint, userKey, userSecret, params, transform, isUseCache = false }) {
+
+  static _api({ apiDomain, endpoint, userKey, userSecret, params, transform, isUseCache = false }) {
     return new Promise((resolve, reject) => {
       params = params ? _.cloneDeep(params) : {};
       params.format = 'json';
@@ -469,6 +471,17 @@ class GigyaDataservice {
         if(_.isObject(param)) {
           params[key] = JSON.stringify(param);
         }
+      }
+
+      if(!apiDomain) {
+        if(params.apiKey) {
+          apiDomain = GigyaDataservice._apiDomainMap.get(params.apiKey);
+        }
+        if(!apiDomain) {
+          apiDomain = 'us1.gigya.com';
+        }
+      } else {
+        GigyaDataservice._apiDomainMap.set(params.apiKey, apiDomain);
       }
 
       // Fire request with params

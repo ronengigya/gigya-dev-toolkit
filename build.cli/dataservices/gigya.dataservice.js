@@ -1108,8 +1108,7 @@ var GigyaDataservice = function () {
   }, {
     key: '_api',
     value: function _api(_ref14) {
-      var _ref14$apiDomain = _ref14.apiDomain;
-      var apiDomain = _ref14$apiDomain === undefined ? 'us1.gigya.com' : _ref14$apiDomain;
+      var apiDomain = _ref14.apiDomain;
       var endpoint = _ref14.endpoint;
       var userKey = _ref14.userKey;
       var userSecret = _ref14.userSecret;
@@ -1140,8 +1139,6 @@ var GigyaDataservice = function () {
               params[_key] = (0, _stringify2.default)(param);
             }
           }
-
-          // Fire request with params
         } catch (err) {
           _didIteratorError8 = true;
           _iteratorError8 = err;
@@ -1157,6 +1154,18 @@ var GigyaDataservice = function () {
           }
         }
 
+        if (!apiDomain) {
+          if (params.apiKey) {
+            apiDomain = GigyaDataservice._apiDomainMap.get(params.apiKey);
+          }
+          if (!apiDomain) {
+            apiDomain = 'us1.gigya.com';
+          }
+        } else {
+          GigyaDataservice._apiDomainMap.set(params.apiKey, apiDomain);
+        }
+
+        // Fire request with params
         var namespace = endpoint.substring(0, endpoint.indexOf('.'));
         var url = 'https://' + namespace + '.' + apiDomain + '/' + endpoint;
 
@@ -1244,6 +1253,7 @@ var GigyaDataservice = function () {
 }();
 
 GigyaDataservice._cacheMap = new _map2.default();
+GigyaDataservice._apiDomainMap = new _map2.default();
 
 
 module.exports = GigyaDataservice;
