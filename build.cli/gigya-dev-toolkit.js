@@ -32,6 +32,7 @@ var toolkit = function _callee(_ref) {
   var newSiteBaseDomain = _ref.newSiteBaseDomain;
   var newSiteDescription = _ref.newSiteDescription;
   var newSiteDataCenter = _ref.newSiteDataCenter;
+  var copyEverything = _ref.copyEverything;
 
   var allPartnerSites, findPartner, partnerSites, sites, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, site, crud, settingsData, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, setting, sourceFileData, choices, _setting, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, destinationApiKey, _setting2, params, validations, sourceObjs, _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, _setting3, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, _destinationApiKey, diffs, _iteratorNormalCompletion6, _didIteratorError6, _iteratorError6, _iterator6, _step6, _setting4, sourceObj, destinationObj, diff, numAdded, numRemoved, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, part, numChanged, isDifferent, _iteratorNormalCompletion8, _didIteratorError8, _iteratorError8, _iterator8, _step8, _part, diffLength, halfDiffLength, valueFirstHalf, valueLastHalf;
 
@@ -43,7 +44,7 @@ var toolkit = function _callee(_ref) {
             var params = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
             var method = '' + operation + setting.charAt(0).toUpperCase() + setting.slice(1);
-            return GigyaDataservice[method](_.merge({ userKey: userKey, userSecret: userSecret, partnerId: partnerId }, params));
+            return GigyaDataservice[method](_.merge({ userKey: userKey, userSecret: userSecret, partnerId: partnerId, copyEverything: copyEverything }, params));
           };
 
           if (!(!userKey || !userSecret)) {

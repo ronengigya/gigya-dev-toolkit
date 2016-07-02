@@ -700,14 +700,15 @@ var GigyaDataservice = function () {
 
             case 7:
               if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
-                _context4.next = 15;
+                _context4.next = 16;
                 break;
               }
 
               action = _step3.value;
 
+              delete action.source;
               action.apiKey = apiKey;
-              _context4.next = 12;
+              _context4.next = 13;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'gm.setActionConfig',
                 userKey: userKey,
@@ -715,62 +716,62 @@ var GigyaDataservice = function () {
                 params: action
               }));
 
-            case 12:
+            case 13:
               _iteratorNormalCompletion3 = true;
               _context4.next = 7;
               break;
 
-            case 15:
-              _context4.next = 21;
+            case 16:
+              _context4.next = 22;
               break;
 
-            case 17:
-              _context4.prev = 17;
+            case 18:
+              _context4.prev = 18;
               _context4.t0 = _context4['catch'](5);
               _didIteratorError3 = true;
               _iteratorError3 = _context4.t0;
 
-            case 21:
-              _context4.prev = 21;
+            case 22:
               _context4.prev = 22;
+              _context4.prev = 23;
 
               if (!_iteratorNormalCompletion3 && _iterator3.return) {
                 _iterator3.return();
               }
 
-            case 24:
-              _context4.prev = 24;
+            case 25:
+              _context4.prev = 25;
 
               if (!_didIteratorError3) {
-                _context4.next = 27;
+                _context4.next = 28;
                 break;
               }
 
               throw _iteratorError3;
 
-            case 27:
-              return _context4.finish(24);
-
             case 28:
-              return _context4.finish(21);
+              return _context4.finish(25);
 
             case 29:
+              return _context4.finish(22);
+
+            case 30:
               _iteratorNormalCompletion4 = true;
               _didIteratorError4 = false;
               _iteratorError4 = undefined;
-              _context4.prev = 32;
+              _context4.prev = 33;
               _iterator4 = (0, _getIterator3.default)(challenges);
 
-            case 34:
+            case 35:
               if (_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done) {
-                _context4.next = 42;
+                _context4.next = 43;
                 break;
               }
 
               challenge = _step4.value;
 
               challenge.apiKey = apiKey;
-              _context4.next = 39;
+              _context4.next = 40;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'gm.setChallengeConfig',
                 userKey: userKey,
@@ -778,51 +779,51 @@ var GigyaDataservice = function () {
                 params: challenge
               }));
 
-            case 39:
+            case 40:
               _iteratorNormalCompletion4 = true;
-              _context4.next = 34;
+              _context4.next = 35;
               break;
 
-            case 42:
-              _context4.next = 48;
+            case 43:
+              _context4.next = 49;
               break;
 
-            case 44:
-              _context4.prev = 44;
-              _context4.t1 = _context4['catch'](32);
+            case 45:
+              _context4.prev = 45;
+              _context4.t1 = _context4['catch'](33);
               _didIteratorError4 = true;
               _iteratorError4 = _context4.t1;
 
-            case 48:
-              _context4.prev = 48;
+            case 49:
               _context4.prev = 49;
+              _context4.prev = 50;
 
               if (!_iteratorNormalCompletion4 && _iterator4.return) {
                 _iterator4.return();
               }
 
-            case 51:
-              _context4.prev = 51;
+            case 52:
+              _context4.prev = 52;
 
               if (!_didIteratorError4) {
-                _context4.next = 54;
+                _context4.next = 55;
                 break;
               }
 
               throw _iteratorError4;
 
-            case 54:
-              return _context4.finish(51);
-
             case 55:
-              return _context4.finish(48);
+              return _context4.finish(52);
 
             case 56:
+              return _context4.finish(49);
+
+            case 57:
             case 'end':
               return _context4.stop();
           }
         }
-      }, null, this, [[5, 17, 21, 29], [22,, 24, 28], [32, 44, 48, 56], [49,, 51, 55]]);
+      }, null, this, [[5, 18, 22, 30], [23,, 25, 29], [33, 45, 49, 57], [50,, 52, 56]]);
     }
   }, {
     key: 'updateSchema',
@@ -1155,14 +1156,15 @@ var GigyaDataservice = function () {
         }
 
         if (!apiDomain) {
+          // Check for data center mapping in cache.
           if (params.apiKey) {
             apiDomain = GigyaDataservice._apiDomainMap.get(params.apiKey);
           }
+
+          // Default to US1 if data center is not set.
           if (!apiDomain) {
             apiDomain = 'us1.gigya.com';
           }
-        } else {
-          GigyaDataservice._apiDomainMap.set(params.apiKey, apiDomain);
         }
 
         // Fire request with params
@@ -1198,12 +1200,7 @@ var GigyaDataservice = function () {
             // Parse JSON
             body = JSON.parse(res.text);
 
-            // Cache response
-            if (isUseCache) {
-              // Clone to avoid object that lives in cache being modified by reference after cache
-              GigyaDataservice._cacheMap.set(cacheKey, _.cloneDeep(body));
-            }
-
+            // Parse response.
             onBody(body);
           } catch (e) {
             reject(e);
@@ -1224,11 +1221,34 @@ var GigyaDataservice = function () {
             }).then(resolve, reject);
           }
 
+          // Check for unknown user key or invalid API key, which can signal Russian DC
+          if (body.errorCode === 403005 || body.errorCode === 400093) {
+            return GigyaDataservice._api({
+              apiDomain: 'ru1.gigya.com',
+              endpoint: endpoint,
+              userKey: userKey,
+              userSecret: userSecret,
+              params: params,
+              transform: transform
+            }).then(resolve, reject);
+          }
+
           // Check for Gigya error code
           if (body.errorCode !== 0) {
             var error = new Error(body.errorDetails ? body.errorDetails : body.errorMessage);
             error.code = body.errorCode;
             return reject(error);
+          }
+
+          // Cache correct data center
+          if (params.apiKey) {
+            GigyaDataservice._apiDomainMap.set(params.apiKey, apiDomain);
+          }
+
+          // Cache response
+          if (isUseCache) {
+            // Clone to avoid object that lives in cache being modified by reference after cache
+            GigyaDataservice._cacheMap.set(cacheKey, _.cloneDeep(body));
           }
 
           // Don't return trash
