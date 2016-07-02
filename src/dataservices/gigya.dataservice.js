@@ -372,6 +372,7 @@ class GigyaDataservice {
     });
 
     for(const action of actions) {
+      delete action.source;
       action.apiKey = apiKey;
       await GigyaDataservice._api({
         endpoint: 'gm.setActionConfig',
