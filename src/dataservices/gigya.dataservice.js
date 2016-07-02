@@ -474,14 +474,15 @@ class GigyaDataservice {
       }
 
       if(!apiDomain) {
+        // Check for data center mapping in cache.
         if(params.apiKey) {
           apiDomain = GigyaDataservice._apiDomainMap.get(params.apiKey);
         }
+
+        // Default to US1 if data center is not set.
         if(!apiDomain) {
           apiDomain = 'us1.gigya.com';
         }
-      } else {
-        GigyaDataservice._apiDomainMap.set(params.apiKey, apiDomain);
       }
 
       // Fire request with params
@@ -520,12 +521,7 @@ class GigyaDataservice {
             // Parse JSON
             body = JSON.parse(res.text);
 
-            // Cache response
-            if(isUseCache) {
-              // Clone to avoid object that lives in cache being modified by reference after cache
-              GigyaDataservice._cacheMap.set(cacheKey, _.cloneDeep(body));
-            }
-
+            // Parse response.
             onBody(body);
           } catch(e) {
             reject(e);
@@ -546,11 +542,34 @@ class GigyaDataservice {
           }).then(resolve, reject);
         }
 
+        // Check for unknown user key or invalid API key, which can signal Russian DC
+        if(body.errorCode === 403005 || body.errorCode === 400093) {
+          return GigyaDataservice._api({
+            apiDomain: 'ru1.gigya.com',
+            endpoint,
+            userKey,
+            userSecret,
+            params,
+            transform
+          }).then(resolve, reject);
+        }
+
         // Check for Gigya error code
         if(body.errorCode !== 0) {
           const error = new Error(body.errorDetails ? body.errorDetails : body.errorMessage);
           error.code = body.errorCode;
           return reject(error);
+        }
+
+        // Cache correct data center
+        if(params.apiKey) {
+          GigyaDataservice._apiDomainMap.set(params.apiKey, apiDomain);
+        }
+
+        // Cache response
+        if(isUseCache) {
+          // Clone to avoid object that lives in cache being modified by reference after cache
+          GigyaDataservice._cacheMap.set(cacheKey, _.cloneDeep(body));
         }
 
         // Don't return trash
