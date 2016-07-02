@@ -7,7 +7,7 @@ const readFile = require('./helpers/read-file');
 const jsdiff = require('diff');
 
 const toolkit = async function({ userKey, userSecret, task, settings, partnerId, sourceFile, sourceApiKey,
-  destinationApiKeys, newSiteBaseDomain, newSiteDescription, newSiteDataCenter }) {
+  destinationApiKeys, newSiteBaseDomain, newSiteDescription, newSiteDataCenter, copyEverything }) {
   // Gigya credentials needed to access API
   if(!userKey || !userSecret) {
     return {
@@ -133,7 +133,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   // operation = fetch or update
   function crud(operation, setting, params = {}) {
     const method = `${operation}${setting.charAt(0).toUpperCase()}${setting.slice(1)}`;
-    return GigyaDataservice[method](_.merge({ userKey, userSecret, partnerId }, params));
+    return GigyaDataservice[method](_.merge({ userKey, userSecret, partnerId, copyEverything }, params));
   }
 
   const settingsData = {};

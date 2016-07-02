@@ -21,6 +21,7 @@ state
   .option('--newSiteBaseDomain [value]', t.NEW_SITE_BASE_DOMAIN)
   .option('--newSiteDescription [value]', t.NEW_SITE_DESCRIPTION)
   .option('--newSiteDataCenter [value]', t.NEW_SITE_DATA_CENTER)
+  .option('--copyEverything', t.COPY_EVERYTHING)
   .parse(process.argv);
 
 // Convert strings to arrays when necessary

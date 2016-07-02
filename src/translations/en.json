@@ -44,5 +44,6 @@
   "NEW_SITE": "New site",
   "NEW_SITE_BASE_DOMAIN": "New site base domain",
   "NEW_SITE_DESCRIPTION": "New site description",
-  "NEW_SITE_DATA_CENTER": "New site data center"
+  "NEW_SITE_DATA_CENTER": "New site data center",
+  "COPY_EVERYTHING": "Copy everything"
 }
