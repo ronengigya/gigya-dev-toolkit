@@ -4,7 +4,7 @@
   "description": "Gigya developer toolkit for common tasks, with a focus on ease-of-use and automation. All tools are available from both a web browser and an interactive command-line.",
   "main": "./build.cli/dataservices/gigya.dataservice.js",
   "scripts": {
-    "start": "node ./build.cli/server.js;",
+    "start": "node ./build.cli/server.js",
     "prepublish": "in-publish && gulp build-prod || not-in-publish"
   },
   "bin": {
