@@ -254,7 +254,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
 
   if(task === 'export') {
     for(const setting in settingsData) {
-      writeFile({
+      await writeFile({
         filePath: `${setting}.${sourceApiKey}.${new Date().getTime()}.json`,
         data: settingsData[setting]
       });

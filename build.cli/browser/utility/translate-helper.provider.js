@@ -32,7 +32,7 @@ function translateHelper($translateProvider) {
     }
 
     function getTranslationTable() {
-      var languageCode = arguments.length <= 0 || arguments[0] === undefined ? getLanguageCode() : arguments[0];
+      var languageCode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : getLanguageCode();
 
       return $translateProvider.translations(languageCode);
     }

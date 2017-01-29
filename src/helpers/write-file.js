@@ -28,7 +28,9 @@ function writeFile({ filePath, data }) {
     } else {
       const blob = new Blob([data], { type: 'application/json;charset=utf-8' });
       browserFilesaver.saveAs(blob, filePath);
-      resolve();
+
+      // Small delay to bypass Chrome bug with downloading multiple files.
+      setTimeout(() => resolve(), 50);
     }
   });
 }

@@ -134,8 +134,8 @@ function validate(_ref2) {
   var validations = _ref2.validations;
 
   _.each(validations, function (_ref3) {
-    var diffs = _ref3.diffs;
-    var site = _ref3.site;
+    var diffs = _ref3.diffs,
+        site = _ref3.site;
 
     console.log(('' + site.baseDomain).bold.underline);
     console.log('' + site.description);
@@ -143,14 +143,14 @@ function validate(_ref2) {
     console.log('');
 
     _.each(diffs, function (_ref4) {
-      var setting = _ref4.setting;
-      var diff = _ref4.diff;
-      var sourceObj = _ref4.sourceObj;
-      var destinationObj = _ref4.destinationObj;
-      var isDifferent = _ref4.isDifferent;
-      var numAdded = _ref4.numAdded;
-      var numRemoved = _ref4.numRemoved;
-      var numChanged = _ref4.numChanged;
+      var setting = _ref4.setting,
+          diff = _ref4.diff,
+          sourceObj = _ref4.sourceObj,
+          destinationObj = _ref4.destinationObj,
+          isDifferent = _ref4.isDifferent,
+          numAdded = _ref4.numAdded,
+          numRemoved = _ref4.numRemoved,
+          numChanged = _ref4.numChanged;
 
       console.log((t[setting.toUpperCase()] + ':').bold.underline);
       if (!isDifferent) {

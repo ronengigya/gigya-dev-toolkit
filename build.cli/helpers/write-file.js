@@ -19,8 +19,8 @@ try {
 } catch (e) {}
 
 function writeFile(_ref) {
-  var filePath = _ref.filePath;
-  var data = _ref.data;
+  var filePath = _ref.filePath,
+      data = _ref.data;
 
   // Write to file, return promise
   return new _promise2.default(function (resolve, reject) {
@@ -41,7 +41,11 @@ function writeFile(_ref) {
     } else {
       var blob = new Blob([data], { type: 'application/json;charset=utf-8' });
       browserFilesaver.saveAs(blob, filePath);
-      resolve();
+
+      // Small delay to bypass Chrome bug with downloading multiple files.
+      setTimeout(function () {
+        return resolve();
+      }, 50);
     }
   });
 }

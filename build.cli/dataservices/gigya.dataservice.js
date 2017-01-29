@@ -49,9 +49,9 @@ var GigyaDataservice = function () {
   (0, _createClass3.default)(GigyaDataservice, null, [{
     key: 'fetchPartner',
     value: function fetchPartner(_ref) {
-      var userKey = _ref.userKey;
-      var userSecret = _ref.userSecret;
-      var partnerId = _ref.partnerId;
+      var userKey = _ref.userKey,
+          userSecret = _ref.userSecret,
+          partnerId = _ref.partnerId;
 
       return GigyaDataservice._api({
         endpoint: 'admin.getPartner',
@@ -64,9 +64,9 @@ var GigyaDataservice = function () {
   }, {
     key: 'fetchUserSites',
     value: function fetchUserSites(_ref2) {
-      var userKey = _ref2.userKey;
-      var userSecret = _ref2.userSecret;
-      var partnerId = _ref2.partnerId;
+      var userKey = _ref2.userKey,
+          userSecret = _ref2.userSecret,
+          partnerId = _ref2.partnerId;
 
       return GigyaDataservice._api({
         endpoint: 'admin.getUserSites',
@@ -82,9 +82,9 @@ var GigyaDataservice = function () {
   }, {
     key: 'fetchSiteConfig',
     value: function fetchSiteConfig(_ref3) {
-      var userKey = _ref3.userKey;
-      var userSecret = _ref3.userSecret;
-      var apiKey = _ref3.apiKey;
+      var userKey = _ref3.userKey,
+          userSecret = _ref3.userSecret,
+          apiKey = _ref3.apiKey;
       var siteConfig, providers, restrictions, response, samlLoginConfig, registeredIdPs, samlIdpConfig, registeredSPs;
       return _regenerator2.default.async(function fetchSiteConfig$(_context) {
         while (1) {
@@ -233,9 +233,9 @@ var GigyaDataservice = function () {
   }, {
     key: 'fetchSchema',
     value: function fetchSchema(_ref4) {
-      var userKey = _ref4.userKey;
-      var userSecret = _ref4.userSecret;
-      var apiKey = _ref4.apiKey;
+      var userKey = _ref4.userKey,
+          userSecret = _ref4.userSecret,
+          apiKey = _ref4.apiKey;
 
       return GigyaDataservice._api({ endpoint: 'accounts.getSchema', userKey: userKey, userSecret: userSecret, params: { apiKey: apiKey }, transform: function transform(schema) {
           // Profile schema has a bunch of things that are read-only
@@ -270,18 +270,18 @@ var GigyaDataservice = function () {
   }, {
     key: 'fetchPolicies',
     value: function fetchPolicies(_ref5) {
-      var userKey = _ref5.userKey;
-      var userSecret = _ref5.userSecret;
-      var apiKey = _ref5.apiKey;
+      var userKey = _ref5.userKey,
+          userSecret = _ref5.userSecret,
+          apiKey = _ref5.apiKey;
 
       return GigyaDataservice._api({ endpoint: 'accounts.getPolicies', userKey: userKey, userSecret: userSecret, params: { apiKey: apiKey } });
     }
   }, {
     key: 'fetchScreensets',
     value: function fetchScreensets(_ref6) {
-      var userKey = _ref6.userKey;
-      var userSecret = _ref6.userSecret;
-      var apiKey = _ref6.apiKey;
+      var userKey = _ref6.userKey,
+          userSecret = _ref6.userSecret,
+          apiKey = _ref6.apiKey;
 
       return GigyaDataservice._api({
         endpoint: 'accounts.getScreenSets',
@@ -299,13 +299,13 @@ var GigyaDataservice = function () {
   }, {
     key: 'updateSiteConfig',
     value: function updateSiteConfig(_ref7) {
-      var userKey = _ref7.userKey;
-      var userSecret = _ref7.userSecret;
-      var partnerId = _ref7.partnerId;
-      var apiKey = _ref7.apiKey;
-      var siteConfig = _ref7.siteConfig;
-      var _ref7$copyEverything = _ref7.copyEverything;
-      var copyEverything = _ref7$copyEverything === undefined ? false : _ref7$copyEverything;
+      var userKey = _ref7.userKey,
+          userSecret = _ref7.userSecret,
+          partnerId = _ref7.partnerId,
+          apiKey = _ref7.apiKey,
+          siteConfig = _ref7.siteConfig,
+          _ref7$copyEverything = _ref7.copyEverything,
+          copyEverything = _ref7$copyEverything === undefined ? false : _ref7$copyEverything;
 
       var response, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, idpConfig, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, spConfig;
 
@@ -579,9 +579,9 @@ var GigyaDataservice = function () {
   }, {
     key: 'fetchLoyaltyConfig',
     value: function fetchLoyaltyConfig(_ref8) {
-      var userKey = _ref8.userKey;
-      var userSecret = _ref8.userSecret;
-      var apiKey = _ref8.apiKey;
+      var userKey = _ref8.userKey,
+          userSecret = _ref8.userSecret,
+          apiKey = _ref8.apiKey;
       var globalConfig, actionConfig, challengeConfig, realJson;
       return _regenerator2.default.async(function fetchLoyaltyConfig$(_context3) {
         while (1) {
@@ -664,14 +664,14 @@ var GigyaDataservice = function () {
   }, {
     key: 'updateLoyaltyConfig',
     value: function updateLoyaltyConfig(_ref9) {
-      var userKey = _ref9.userKey;
-      var userSecret = _ref9.userSecret;
-      var apiKey = _ref9.apiKey;
-      var _ref9$loyaltyConfig = _ref9.loyaltyConfig;
-      var callbackURL = _ref9$loyaltyConfig.callbackURL;
-      var allowClientSideActionNotifications = _ref9$loyaltyConfig.allowClientSideActionNotifications;
-      var actions = _ref9$loyaltyConfig.actions;
-      var challenges = _ref9$loyaltyConfig.challenges;
+      var userKey = _ref9.userKey,
+          userSecret = _ref9.userSecret,
+          apiKey = _ref9.apiKey,
+          _ref9$loyaltyConfig = _ref9.loyaltyConfig,
+          callbackURL = _ref9$loyaltyConfig.callbackURL,
+          allowClientSideActionNotifications = _ref9$loyaltyConfig.allowClientSideActionNotifications,
+          actions = _ref9$loyaltyConfig.actions,
+          challenges = _ref9$loyaltyConfig.challenges;
 
       var _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, action, _iteratorNormalCompletion4, _didIteratorError4, _iteratorError4, _iterator4, _step4, challenge;
 
@@ -828,10 +828,10 @@ var GigyaDataservice = function () {
   }, {
     key: 'updateSchema',
     value: function updateSchema(_ref10) {
-      var userKey = _ref10.userKey;
-      var userSecret = _ref10.userSecret;
-      var apiKey = _ref10.apiKey;
-      var schema = _ref10.schema;
+      var userKey = _ref10.userKey,
+          userSecret = _ref10.userSecret,
+          apiKey = _ref10.apiKey,
+          schema = _ref10.schema;
 
       var params, schemaTypes, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, schemaType, _iteratorNormalCompletion6, _didIteratorError6, _iteratorError6, _iterator6, _step6, _step6$value, key, _schema;
 
@@ -893,9 +893,7 @@ var GigyaDataservice = function () {
               _context5.prev = 23;
 
               for (_iterator6 = (0, _getIterator3.default)((0, _entries2.default)(params[schemaType].fields)); !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                _step6$value = (0, _slicedToArray3.default)(_step6.value, 2);
-                key = _step6$value[0];
-                _schema = _step6$value[1];
+                _step6$value = (0, _slicedToArray3.default)(_step6.value, 2), key = _step6$value[0], _schema = _step6$value[1];
 
                 params[schemaType].fields[key] = { required: _schema.required };
               }
@@ -992,10 +990,10 @@ var GigyaDataservice = function () {
   }, {
     key: 'updatePolicies',
     value: function updatePolicies(_ref11) {
-      var userKey = _ref11.userKey;
-      var userSecret = _ref11.userSecret;
-      var apiKey = _ref11.apiKey;
-      var policies = _ref11.policies;
+      var userKey = _ref11.userKey,
+          userSecret = _ref11.userSecret,
+          apiKey = _ref11.apiKey,
+          policies = _ref11.policies;
 
       var params, keysToRemove, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, keyToRemove;
 
@@ -1089,17 +1087,17 @@ var GigyaDataservice = function () {
   }, {
     key: 'updateScreensets',
     value: function updateScreensets(_ref12) {
-      var userKey = _ref12.userKey;
-      var userSecret = _ref12.userSecret;
-      var apiKey = _ref12.apiKey;
-      var screensets = _ref12.screensets;
+      var userKey = _ref12.userKey,
+          userSecret = _ref12.userSecret,
+          apiKey = _ref12.apiKey,
+          screensets = _ref12.screensets;
 
       var promises = [];
       _.each(screensets, function (_ref13) {
-        var screenSetID = _ref13.screenSetID;
-        var html = _ref13.html;
-        var css = _ref13.css;
-        var metadata = _ref13.metadata;
+        var screenSetID = _ref13.screenSetID,
+            html = _ref13.html,
+            css = _ref13.css,
+            metadata = _ref13.metadata;
 
         var params = { apiKey: apiKey, screenSetID: screenSetID, html: html, css: css, metadata: metadata };
         promises.push(GigyaDataservice._api({ endpoint: 'accounts.setScreenSet', userKey: userKey, userSecret: userSecret, params: params }));
@@ -1109,14 +1107,14 @@ var GigyaDataservice = function () {
   }, {
     key: '_api',
     value: function _api(_ref14) {
-      var apiDomain = _ref14.apiDomain;
-      var endpoint = _ref14.endpoint;
-      var userKey = _ref14.userKey;
-      var userSecret = _ref14.userSecret;
-      var params = _ref14.params;
-      var transform = _ref14.transform;
-      var _ref14$isUseCache = _ref14.isUseCache;
-      var isUseCache = _ref14$isUseCache === undefined ? false : _ref14$isUseCache;
+      var apiDomain = _ref14.apiDomain,
+          endpoint = _ref14.endpoint,
+          userKey = _ref14.userKey,
+          userSecret = _ref14.userSecret,
+          params = _ref14.params,
+          transform = _ref14.transform,
+          _ref14$isUseCache = _ref14.isUseCache,
+          isUseCache = _ref14$isUseCache === undefined ? false : _ref14$isUseCache;
 
       return new _promise2.default(function (resolve, reject) {
         params = params ? _.cloneDeep(params) : {};
@@ -1131,10 +1129,9 @@ var GigyaDataservice = function () {
 
         try {
           for (var _iterator8 = (0, _getIterator3.default)((0, _entries2.default)(params)), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var _step8$value = (0, _slicedToArray3.default)(_step8.value, 2);
-
-            var _key = _step8$value[0];
-            var param = _step8$value[1];
+            var _step8$value = (0, _slicedToArray3.default)(_step8.value, 2),
+                _key = _step8$value[0],
+                param = _step8$value[1];
 
             if (_.isObject(param)) {
               params[_key] = (0, _stringify2.default)(param);
