@@ -36,9 +36,9 @@
       <th scope="row">{{ 'GIGYA_USER_SECRET_KEY' | translate }}</th>
       <td>{{ '*'.repeat(vm.state.userSecret.length) }}</td>
     </tr>
-    <tr ng-if="vm.state.partnerId">
+    <tr ng-if="vm.state.partnerID">
       <th scope="row">{{ 'GIGYA_PARTNER_ID' | translate }}</th>
-      <td>{{ vm.state.partnerId }}</td>
+      <td>{{ vm.state.partnerID }}</td>
     </tr>
     <tr ng-if="vm.state.task">
       <th scope="row">{{ 'TASK' | translate }}</th>
@@ -55,14 +55,14 @@
         </span>
       </td>
     </tr>
-    <tr ng-if="vm.state.sourceApiKey">
+    <tr ng-if="vm.state.sourceAPIKey">
       <th scope="row">{{ 'SOURCE_GIGYA_SITE' | translate }}</th>
-      <td>{{ vm.state.sourceApiKey }}</td>
+      <td>{{ vm.state.sourceAPIKey }}</td>
     </tr>
-    <tr ng-if="vm.state.destinationApiKeys">
+    <tr ng-if="vm.state.destinationAPIKeys">
       <th scope="row">{{ 'DESTINATION_GIGYA_SITES' | translate }}</th>
       <td>
-        <div ng-repeat="apiKey in vm.state.destinationApiKeys">{{ apiKey }}</div>
+        <div ng-repeat="apiKey in vm.state.destinationAPIKeys">{{ apiKey }}</div>
       </td>
     </tr>
   </table>

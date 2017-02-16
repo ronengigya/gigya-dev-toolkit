@@ -6,8 +6,11 @@ const writeFile = require('./helpers/write-file');
 const readFile = require('./helpers/read-file');
 const jsdiff = require('diff');
 
-const toolkit = async function({ userKey, userSecret, task, settings, partnerId, sourceFile, sourceApiKey,
-  destinationApiKeys, newSiteBaseDomain, newSiteDescription, newSiteDataCenter, copyEverything }) {
+const toolkit = async function({ env = 'us1.gigya.com', userKey, userSecret, task, settings, partnerID, sourceFile, sourceAPIKey,
+  destinationAPIKeys, newSiteBaseDomain, newSiteDescription, newSiteDataCenter, copyEverything, acceptAllDefaults = false }) {
+  // Set environment.
+  GigyaDataservice.defaultAPIDomain = env;
+
   // Gigya credentials needed to access API
   if(!userKey || !userSecret) {
     return {
@@ -36,11 +39,11 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   const allPartnerSites = await GigyaDataservice.fetchUserSites({ userKey, userSecret });
 
   // Get partner ID
-  if(!partnerId) {
+  if(!partnerID) {
     // Only prompt for partner ID if more than one available
     // This prevents users from needing to enter their partner ID in the common use-case where they have only one account linked
     if(allPartnerSites.length === 1) {
-      partnerId = allPartnerSites[0].partnerID;
+      partnerID = allPartnerSites[0].partnerID;
     } else if(allPartnerSites.length <= 10) {
       // User has less than 10 partner IDs linked
       // Choose from list
@@ -48,7 +51,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
         view: 'prompt',
         params: {
           questions: {
-            name: 'partnerId',
+            name: 'partnerID',
             type: 'list',
             message: 'GIGYA_PARTNER_ID',
             choices: _.map(allPartnerSites, 'partnerID')
@@ -63,7 +66,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
         view: 'prompt',
         params: {
           questions: {
-            name: 'partnerId',
+            name: 'partnerID',
             type: 'input',
             message: 'GIGYA_PARTNER_ID'
           }
@@ -75,10 +78,10 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   // Fetch all partner sites (not all partners + sites)
   // This also validates the partner ID exists
   // We'll first look for it in the array of all partners + sites we already have to save some time
-  const findPartner = _.filter(allPartnerSites, { partnerID: partnerId });
+  const findPartner = _.filter(allPartnerSites, { partnerID: partnerID });
   const partnerSites = findPartner.length
     ? findPartner
-    : await GigyaDataservice.fetchUserSites({ userKey, userSecret, partnerId });
+    : await GigyaDataservice.fetchUserSites({ userKey, userSecret, partnerID });
 
   // Used to list sites on partner
   const sites = [];
@@ -119,7 +122,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
           message: task !== 'import' ? 'SETTINGS' : 'SETTING',
           choices: [
             { name: 'SITE_CONFIG', value: 'siteConfig' },
-            { name: 'SCREENSETS', value: 'screensets' },
+            { name: 'SCREENSETS', value: 'screenSets' },
             { name: 'SCHEMA', value: 'schema' },
             { name: 'POLICIES', value: 'policies' },
             { name: 'LOYALTY_CONFIG', value: 'loyaltyConfig' }
@@ -133,18 +136,18 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   // operation = fetch or update
   function crud(operation, setting, params = {}) {
     const method = `${operation}${setting.charAt(0).toUpperCase()}${setting.slice(1)}`;
-    return GigyaDataservice[method](_.merge({ userKey, userSecret, partnerId, copyEverything }, params));
+    return GigyaDataservice[method](_.merge({ userKey, userSecret, partnerID, copyEverything }, params));
   }
 
   const settingsData = {};
   if(task === 'export' || task === 'copy' || task === 'validate') {
     // Get API key to export from
-    if(!sourceApiKey) {
+    if(!sourceAPIKey) {
       return {
         view: 'prompt',
         params: {
           questions: {
-            name: 'sourceApiKey',
+            name: 'sourceAPIKey',
             type: 'list',
             message: 'SOURCE_GIGYA_SITE',
             choices: sites
@@ -155,7 +158,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
 
     // Fetch settings from selected key
     for(const setting of settings) {
-      settingsData[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
+      settingsData[setting] = await crud('fetch', setting, { apiKey: sourceAPIKey });
     }
   }
   if(task === 'import') {
@@ -178,9 +181,9 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
 
   if(task === 'import' || task === 'copy' || task === 'validate') {
     // Get destination API keys
-    if(!destinationApiKeys) {
+    if(!destinationAPIKeys) {
       // Create destination site options
-      const choices = _.filter(sites, (site) => site.value !== sourceApiKey);
+      const choices = _.filter(sites, (site) => site.value !== sourceAPIKey);
 
       // Add new site option to destination API key if importing site config
       if(task !== 'validate' && settings.indexOf('siteConfig') !== -1) {
@@ -191,7 +194,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
         view: 'prompt',
         params: {
           questions: {
-            name: 'destinationApiKeys',
+            name: 'destinationAPIKeys',
             type: 'checkbox',
             message: 'DESTINATION_GIGYA_SITES',
             choices
@@ -201,53 +204,68 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
     }
 
     // Check for new site and grab additional information if needed
-    if(destinationApiKeys.indexOf('_new') !== -1) {
+    if(destinationAPIKeys.indexOf('_new') !== -1) {
       if(!newSiteBaseDomain) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: [
-              {
-                name: 'newSiteBaseDomain',
-                type: 'input',
-                message: 'NEW_SITE_BASE_DOMAIN',
-                default: settingsData['siteConfig'].baseDomain
-              }
-            ]
-          }
-        };
+        const def = settingsData['siteConfig'].baseDomain;
+        if (acceptAllDefaults) {
+          newSiteBaseDomain = def;
+        } else {
+          return {
+            view: 'prompt',
+            params: {
+              questions: [
+                {
+                  name: 'newSiteBaseDomain',
+                  type: 'input',
+                  message: 'NEW_SITE_BASE_DOMAIN',
+                  default: def
+                }
+              ]
+            }
+          };
+        }
       }
 
       if(!newSiteDescription) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: [
-              {
-                name: 'newSiteDescription',
-                type: 'input',
-                message: 'NEW_SITE_DESCRIPTION',
-                default: settingsData['siteConfig'].description
-              }
-            ]
-          }
-        };
+        const def = settingsData['siteConfig'].description;
+        if (acceptAllDefaults) {
+          newSiteDescription = def;
+        } else {
+          return {
+            view: 'prompt',
+            params: {
+              questions: [
+                {
+                  name: 'newSiteDescription',
+                  type: 'input',
+                  message: 'NEW_SITE_DESCRIPTION',
+                  default: sdef
+                }
+              ]
+            }
+          };
+        }
       }
 
       if(!newSiteDataCenter) {
-        return {
-          view: 'prompt',
-          params: {
-            questions: [
-              {
-                name: 'newSiteDataCenter',
-                type: 'input',
-                message: 'NEW_SITE_DATA_CENTER',
-                default: settingsData['siteConfig'].dataCenter
-              }
-            ]
-          }
-        };
+        const def = settingsData['siteConfig'].dataCenter;
+        if (acceptAllDefaults) {
+          newSiteDescription = def;
+        } else {
+          return {
+            view: 'prompt',
+            params: {
+              questions: [
+                {
+                  name: 'newSiteDataCenter',
+                  type: 'input',
+                  message: 'NEW_SITE_DATA_CENTER',
+                  default: def
+                }
+              ]
+            }
+          };
+        }
       }
     }
   }
@@ -255,7 +273,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
   if(task === 'export') {
     for(const setting in settingsData) {
       await writeFile({
-        filePath: `${setting}.${sourceApiKey}.${new Date().getTime()}.json`,
+        filePath: `${setting}.${sourceAPIKey}.${new Date().getTime()}.json`,
         data: settingsData[setting]
       });
     }
@@ -271,16 +289,16 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
 
   if(task === 'copy' || task === 'import') {
     // Push settings from source into destination(s)
-    for(const destinationApiKey of destinationApiKeys) {
+    for(const destinationAPIKey of destinationAPIKeys) {
       for(const setting in settingsData) {
         // Put together params and be sure to clone the settingsData
         const params = {
-          apiKey: destinationApiKey,
+          apiKey: destinationAPIKey,
           [setting]: _.assign({}, settingsData[setting])
         };
 
-        // If the destinationApiKey is new, override specific params
-        if(destinationApiKey === '_new') {
+        // If the destinationAPIKey is new, override specific params
+        if(destinationAPIKey === '_new') {
           params['siteConfig'].baseDomain = newSiteBaseDomain;
           params['siteConfig'].description = newSiteDescription;
           params['siteConfig'].dataCenter = newSiteDataCenter;
@@ -308,15 +326,15 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
     const sourceObjs = {};
 
     for(const setting of settings) {
-      sourceObjs[setting] = await crud('fetch', setting, { apiKey: sourceApiKey });
+      sourceObjs[setting] = await crud('fetch', setting, { apiKey: sourceAPIKey });
     }
 
-    for(const destinationApiKey of destinationApiKeys) {
+    for(const destinationAPIKey of destinationAPIKeys) {
       const diffs = [];
       for(const setting of settings) {
         // Fetch objects and run jsdiff
         const sourceObj = sourceObjs[setting];
-        const destinationObj = await crud('fetch', setting, { apiKey: destinationApiKey });
+        const destinationObj = await crud('fetch', setting, { apiKey: destinationAPIKey });
         const diff = jsdiff.diffJson(sourceObj, destinationObj);
 
         // Calculate stats
@@ -377,7 +395,7 @@ const toolkit = async function({ userKey, userSecret, task, settings, partnerId,
         });
       }
 
-      validations.push({ diffs, site: _.find(partnerSites[0].sites, { apiKey: destinationApiKey }) });
+      validations.push({ diffs, site: _.find(partnerSites[0].sites, { apiKey: destinationAPIKey }) });
     }
 
     return {

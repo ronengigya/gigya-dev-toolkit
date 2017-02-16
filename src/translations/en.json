@@ -31,7 +31,7 @@
   "VALUES": "values",
   "VALIDATE_AGAINST": "Validate against",
   "SOURCE": "Source",
-  "SOURCE": "Destination",
+  "DESTINATION": "Destination",
   "SETTINGS_FILE": "Settings file",
   "TO_RUN_THIS_COMMAND_AGAIN": "To run this command again",
   "UNRECOVERABLE_ERROR": "Unrecoverable error!",
@@ -45,5 +45,6 @@
   "NEW_SITE_BASE_DOMAIN": "New site base domain",
   "NEW_SITE_DESCRIPTION": "New site description",
   "NEW_SITE_DATA_CENTER": "New site data center",
-  "COPY_EVERYTHING": "Copy everything"
+  "COPY_EVERYTHING": "Copy everything",
+  "ENVIRONMENT": "Environment"
 }

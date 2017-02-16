@@ -51,13 +51,13 @@ var GigyaDataservice = function () {
     value: function fetchPartner(_ref) {
       var userKey = _ref.userKey,
           userSecret = _ref.userSecret,
-          partnerId = _ref.partnerId;
+          partnerID = _ref.partnerID;
 
       return GigyaDataservice._api({
         endpoint: 'admin.getPartner',
         userKey: userKey,
         userSecret: userSecret,
-        params: { partnerID: partnerId },
+        params: { partnerID: partnerID },
         isUseCache: true
       });
     }
@@ -66,13 +66,13 @@ var GigyaDataservice = function () {
     value: function fetchUserSites(_ref2) {
       var userKey = _ref2.userKey,
           userSecret = _ref2.userSecret,
-          partnerId = _ref2.partnerId;
+          partnerID = _ref2.partnerID;
 
       return GigyaDataservice._api({
         endpoint: 'admin.getUserSites',
         userKey: userKey,
         userSecret: userSecret,
-        params: { targetPartnerID: partnerId },
+        params: { targetPartnerID: partnerID },
         transform: function transform(res) {
           return res.sites;
         },
@@ -301,7 +301,7 @@ var GigyaDataservice = function () {
     value: function updateSiteConfig(_ref7) {
       var userKey = _ref7.userKey,
           userSecret = _ref7.userSecret,
-          partnerId = _ref7.partnerId,
+          partnerID = _ref7.partnerID,
           apiKey = _ref7.apiKey,
           siteConfig = _ref7.siteConfig,
           _ref7$copyEverything = _ref7.copyEverything,
@@ -325,7 +325,7 @@ var GigyaDataservice = function () {
 
               _context2.next = 4;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'admin.createSite', userKey: userKey, userSecret: userSecret, params: {
-                  partnerID: partnerId,
+                  partnerID: partnerID,
                   baseDomain: siteConfig.baseDomain,
                   description: siteConfig.description,
                   dataCenter: siteConfig.dataCenter
@@ -1002,20 +1002,31 @@ var GigyaDataservice = function () {
           switch (_context6.prev = _context6.next) {
             case 0:
               params = _.extend({}, policies, { apiKey: apiKey });
-              _context6.prev = 1;
-              _context6.next = 4;
+
+              // TODO: Handle RBA settings. Will require making additional API calls.
+              // These must be removed because if you pass them the Gigya API call fails.
+
+              delete params.rba;
+              if (params.security) {
+                delete params.security.accountLockout;
+                delete params.security.captcha;
+                delete params.security.ipLockout;
+              }
+
+              _context6.prev = 3;
+              _context6.next = 6;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey: userKey, userSecret: userSecret, params: params }));
 
-            case 4:
-              _context6.next = 34;
+            case 6:
+              _context6.next = 36;
               break;
 
-            case 6:
-              _context6.prev = 6;
-              _context6.t0 = _context6['catch'](1);
+            case 8:
+              _context6.prev = 8;
+              _context6.t0 = _context6['catch'](3);
 
               if (!(_context6.t0.code === 400006 && _context6.t0.message.indexOf('Member sites may not override') !== -1)) {
-                _context6.next = 33;
+                _context6.next = 35;
                 break;
               }
 
@@ -1024,7 +1035,7 @@ var GigyaDataservice = function () {
               _iteratorNormalCompletion7 = true;
               _didIteratorError7 = false;
               _iteratorError7 = undefined;
-              _context6.prev = 13;
+              _context6.prev = 15;
 
               for (_iterator7 = (0, _getIterator3.default)(keysToRemove); !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
                 keyToRemove = _step7.value;
@@ -1033,88 +1044,83 @@ var GigyaDataservice = function () {
               }
 
               // We may need multiple rounds to remove all offending policies.
-              _context6.next = 21;
+              _context6.next = 23;
               break;
 
-            case 17:
-              _context6.prev = 17;
-              _context6.t1 = _context6['catch'](13);
+            case 19:
+              _context6.prev = 19;
+              _context6.t1 = _context6['catch'](15);
               _didIteratorError7 = true;
               _iteratorError7 = _context6.t1;
 
-            case 21:
-              _context6.prev = 21;
-              _context6.prev = 22;
+            case 23:
+              _context6.prev = 23;
+              _context6.prev = 24;
 
               if (!_iteratorNormalCompletion7 && _iterator7.return) {
                 _iterator7.return();
               }
 
-            case 24:
-              _context6.prev = 24;
+            case 26:
+              _context6.prev = 26;
 
               if (!_didIteratorError7) {
-                _context6.next = 27;
+                _context6.next = 29;
                 break;
               }
 
               throw _iteratorError7;
 
-            case 27:
-              return _context6.finish(24);
-
-            case 28:
-              return _context6.finish(21);
-
             case 29:
-              _context6.next = 31;
-              return _regenerator2.default.awrap(this.updatePolicies({ userKey: userKey, userSecret: userSecret, apiKey: apiKey, policies: params }));
+              return _context6.finish(26);
+
+            case 30:
+              return _context6.finish(23);
 
             case 31:
-              _context6.next = 34;
-              break;
+              _context6.next = 33;
+              return _regenerator2.default.awrap(this.updatePolicies({ userKey: userKey, userSecret: userSecret, apiKey: apiKey, policies: params }));
 
             case 33:
+              _context6.next = 36;
+              break;
+
+            case 35:
               throw _context6.t0;
 
-            case 34:
+            case 36:
             case 'end':
               return _context6.stop();
           }
         }
-      }, null, this, [[1, 6], [13, 17, 21, 29], [22,, 24, 28]]);
+      }, null, this, [[3, 8], [15, 19, 23, 31], [24,, 26, 30]]);
     }
   }, {
-    key: 'updateScreensets',
-    value: function updateScreensets(_ref12) {
+    key: 'updateScreenSets',
+    value: function updateScreenSets(_ref12) {
       var userKey = _ref12.userKey,
           userSecret = _ref12.userSecret,
           apiKey = _ref12.apiKey,
-          screensets = _ref12.screensets;
+          screenSets = _ref12.screenSets;
 
       var promises = [];
-      _.each(screensets, function (_ref13) {
-        var screenSetID = _ref13.screenSetID,
-            html = _ref13.html,
-            css = _ref13.css,
-            metadata = _ref13.metadata;
-
-        var params = { apiKey: apiKey, screenSetID: screenSetID, html: html, css: css, metadata: metadata };
+      _.each(screenSets, function (params) {
+        params = _.extend({}, params, { apiKey: apiKey });
         promises.push(GigyaDataservice._api({ endpoint: 'accounts.setScreenSet', userKey: userKey, userSecret: userSecret, params: params }));
       });
-      return promises;
+      return _promise2.default.all(promises);
     }
   }, {
     key: '_api',
-    value: function _api(_ref14) {
-      var apiDomain = _ref14.apiDomain,
-          endpoint = _ref14.endpoint,
-          userKey = _ref14.userKey,
-          userSecret = _ref14.userSecret,
-          params = _ref14.params,
-          transform = _ref14.transform,
-          _ref14$isUseCache = _ref14.isUseCache,
-          isUseCache = _ref14$isUseCache === undefined ? false : _ref14$isUseCache;
+    value: function _api(_ref13) {
+      var apiDomain = _ref13.apiDomain,
+          endpoint = _ref13.endpoint,
+          userKey = _ref13.userKey,
+          userSecret = _ref13.userSecret,
+          params = _ref13.params,
+          transform = _ref13.transform,
+          _ref13$isUseCache = _ref13.isUseCache,
+          isUseCache = _ref13$isUseCache === undefined ? false : _ref13$isUseCache;
 
       return new _promise2.default(function (resolve, reject) {
         params = params ? _.cloneDeep(params) : {};
@@ -1135,6 +1141,10 @@ var GigyaDataservice = function () {
 
             if (_.isObject(param)) {
               params[_key] = (0, _stringify2.default)(param);
+            } else if (param === null) {
+              params[_key] = 'null';
+            } else if (param === undefined) {
+              delete params[_key];
             }
           }
         } catch (err) {
@@ -1160,7 +1170,7 @@ var GigyaDataservice = function () {
 
           // Default to US1 if data center is not set.
           if (!apiDomain) {
-            apiDomain = 'us1.gigya.com';
+            apiDomain = GigyaDataservice.defaultAPIDomain;
           }
         }
 
@@ -1168,7 +1178,7 @@ var GigyaDataservice = function () {
         var namespace = endpoint.substring(0, endpoint.indexOf('.'));
         var url = 'https://' + namespace + '.' + apiDomain + '/' + endpoint;
 
-        //console.log(url + '?' + require('querystring').stringify(params));
+        console.log(url + '?' + require('querystring').stringify(params));
 
         // Create cache key
         var cacheKey = isUseCache ? url + (0, _stringify2.default)(params) : undefined;
@@ -1271,6 +1281,7 @@ var GigyaDataservice = function () {
 
 GigyaDataservice._cacheMap = new _map2.default();
 GigyaDataservice._apiDomainMap = new _map2.default();
+GigyaDataservice.defaultAPIDomain = 'us1.gigya.com';
 
 
 module.exports = GigyaDataservice;

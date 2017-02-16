@@ -6,23 +6,24 @@ const _ = require('lodash');
 class GigyaDataservice {
   static _cacheMap = new Map();
   static _apiDomainMap = new Map();
+  static defaultAPIDomain = 'us1.gigya.com';
 
-  static fetchPartner({ userKey, userSecret, partnerId }) {
+  static fetchPartner({ userKey, userSecret, partnerID }) {
     return GigyaDataservice._api({
       endpoint: 'admin.getPartner',
       userKey,
       userSecret,
-      params: { partnerID: partnerId },
+      params: { partnerID: partnerID },
       isUseCache: true
     });
   }
 
-  static fetchUserSites({ userKey, userSecret, partnerId }) {
+  static fetchUserSites({ userKey, userSecret, partnerID }) {
     return GigyaDataservice._api({
       endpoint: 'admin.getUserSites',
       userKey,
       userSecret,
-      params: { targetPartnerID: partnerId },
+      params: { targetPartnerID: partnerID },
       transform: (res) => res.sites,
       isUseCache: true
     });
@@ -175,7 +176,7 @@ class GigyaDataservice {
     });
   }
 
-  static async updateSiteConfig({ userKey, userSecret, partnerId, apiKey, siteConfig, copyEverything = false }) {
+  static async updateSiteConfig({ userKey, userSecret, partnerID, apiKey, siteConfig, copyEverything = false }) {
     // Clone site configuration because we may modify it
     siteConfig = _.cloneDeep(siteConfig);
 
@@ -183,7 +184,7 @@ class GigyaDataservice {
     if(apiKey === '_new') {
       // Create API key and then call updateSiteConfig to set all other values.
       const response = await GigyaDataservice._api({ endpoint: 'admin.createSite', userKey, userSecret, params: {
-        partnerID: partnerId,
+        partnerID: partnerID,
         baseDomain: siteConfig.baseDomain,
         description: siteConfig.description,
         dataCenter: siteConfig.dataCenter
@@ -429,6 +430,16 @@ class GigyaDataservice {
 
   static async updatePolicies({ userKey, userSecret, apiKey, policies }) {
     const params = _.extend({}, policies, { apiKey });
+  
+    // TODO: Handle RBA settings. Will require making additional API calls.
+    // These must be removed because if you pass them the Gigya API call fails.
+    delete params.rba;
+    if (params.security) {
+      delete params.security.accountLockout;
+      delete params.security.captcha;
+      delete params.security.ipLockout;
+    }
+  
     try {
       await GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey, userSecret, params });
     } catch(e) {
@@ -450,13 +461,13 @@ class GigyaDataservice {
     }
   }
 
-  static updateScreensets({ userKey, userSecret, apiKey, screensets }) {
+  static updateScreenSets({ userKey, userSecret, apiKey, screenSets }) {
     const promises = [];
-    _.each(screensets, ({ screenSetID, html, css, metadata }) => {
-      const params = { apiKey, screenSetID, html, css, metadata };
+    _.each(screenSets, (params) => {
+      params = _.extend({}, params, { apiKey });
       promises.push(GigyaDataservice._api({ endpoint: 'accounts.setScreenSet', userKey, userSecret, params }));
     });
-    return promises;
+    return Promise.all(promises);
   }
 
 
@@ -471,6 +482,10 @@ class GigyaDataservice {
       for(const [key, param] of Object.entries(params)) {
         if(_.isObject(param)) {
           params[key] = JSON.stringify(param);
+        } else if(param === null) {
+          params[key] = 'null';
+        } else if (param === undefined) {
+          delete params[key];
         }
       }
 
@@ -482,7 +497,7 @@ class GigyaDataservice {
 
         // Default to US1 if data center is not set.
         if(!apiDomain) {
-          apiDomain = 'us1.gigya.com';
+          apiDomain = GigyaDataservice.defaultAPIDomain;
         }
       }
 
@@ -490,7 +505,7 @@ class GigyaDataservice {
       const namespace = endpoint.substring(0, endpoint.indexOf('.'));
       let url = `https://${namespace}.${apiDomain}/${endpoint}`;
 
-      //console.log(url + '?' + require('querystring').stringify(params));
+      console.log(url + '?' + require('querystring').stringify(params));
 
       // Create cache key
       const cacheKey = isUseCache ? url + JSON.stringify(params) : undefined;

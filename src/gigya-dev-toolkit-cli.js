@@ -10,14 +10,15 @@ const fs = require('fs');
 
 // Command-line arguments
 state
+  .option('--env [value]', t.ENVIRONMENT)
   .option('--userKey [value]', t.GIGYA_USER_KEY)
   .option('--userSecret [value]', t.GIGYA_USER_SECRET_KEY)
   .option('--task [value]', t.TASK)
   .option('--settings [value]', t.SETTINGS)
-  .option('--partnerId [value]', t.GIGYA_PARTNER_ID)
-  .option('--sourceApiKey [value]', t.SOURCE_GIGYA_SITE)
+  .option('--partnerID [value]', t.GIGYA_PARTNER_ID)
+  .option('--sourceAPIKey [value]', t.SOURCE_GIGYA_SITE)
   .option('--sourceFile [value]', t.SETTINGS_FILE)
-  .option('--destinationApiKeys [value]', t.DESTINATION_GIGYA_SITES)
+  .option('--destinationAPIKeys [value]', t.DESTINATION_GIGYA_SITES)
   .option('--newSiteBaseDomain [value]', t.NEW_SITE_BASE_DOMAIN)
   .option('--newSiteDescription [value]', t.NEW_SITE_DESCRIPTION)
   .option('--newSiteDataCenter [value]', t.NEW_SITE_DATA_CENTER)
@@ -28,8 +29,8 @@ state
 if(_.isString(state.settings) && state.task !== 'import') {
   state.settings = state.settings.split(',');
 }
-if(_.isString(state.destinationApiKeys)) {
-  state.destinationApiKeys = state.destinationApiKeys.split(',');
+if(_.isString(state.destinationAPIKeys)) {
+  state.destinationAPIKeys = state.destinationAPIKeys.split(',');
 }
 
 function prompt({ questions }) {

@@ -24,7 +24,7 @@ For convenience, the GDT browser interface is hosted online at: [https://tools.g
 
 ![command-line](https://cloud.githubusercontent.com/assets/1831484/10329242/44a6161a-6c73-11e5-8d53-ba4b73a1eb38.png)
 
-The command-line utility is designed to assist in automating all GDT tasks as part of your build process. After running a successful command via the interactive interace, the full command with arguments will be shown so that you can easily run the same command again. One common use of the GDT command-line is to validate that your policies/schema/screensets match across environments. (Development = QA/Staging/Production, for example.) It is bad practice to use the Gigya console to manually copy settings between environments.
+The command-line utility is designed to assist in automating all GDT tasks as part of your build process. After running a successful command via the interactive interace, the full command with arguments will be shown so that you can easily run the same command again. One common use of the GDT command-line is to validate that your policies/schema/screenSets match across environments. (Development = QA/Staging/Production, for example.) It is bad practice to use the Gigya console to manually copy settings between environments.
 
 The GDT command-line treats the current working directory as it's project directory. All exported files will be automatically downloaded into the current working directory, the file selection dialog shows you only files in the current working directory, etc. 
 
