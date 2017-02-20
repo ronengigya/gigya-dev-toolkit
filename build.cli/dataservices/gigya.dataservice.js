@@ -277,8 +277,8 @@ var GigyaDataservice = function () {
       return GigyaDataservice._api({ endpoint: 'accounts.getPolicies', userKey: userKey, userSecret: userSecret, params: { apiKey: apiKey } });
     }
   }, {
-    key: 'fetchScreensets',
-    value: function fetchScreensets(_ref6) {
+    key: 'fetchScreenSets',
+    value: function fetchScreenSets(_ref6) {
       var userKey = _ref6.userKey,
           userSecret = _ref6.userSecret,
           apiKey = _ref6.apiKey;
@@ -289,7 +289,7 @@ var GigyaDataservice = function () {
         userSecret: userSecret,
         params: {
           apiKey: apiKey,
-          include: 'screenSetID,html,css,metadata'
+          include: 'screenSetID,html,css,metadata,translations'
         },
         transform: function transform(res) {
           return res.screenSets;

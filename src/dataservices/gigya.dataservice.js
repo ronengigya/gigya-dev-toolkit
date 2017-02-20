@@ -163,14 +163,14 @@ class GigyaDataservice {
     return GigyaDataservice._api({ endpoint: 'accounts.getPolicies', userKey, userSecret, params: { apiKey } });
   }
 
-  static fetchScreensets({ userKey, userSecret, apiKey }) {
+  static fetchScreenSets({ userKey, userSecret, apiKey }) {
     return GigyaDataservice._api({
       endpoint: 'accounts.getScreenSets',
       userKey,
       userSecret,
       params: {
         apiKey,
-        include: 'screenSetID,html,css,metadata'
+        include: 'screenSetID,html,css,metadata,translations'
       },
       transform: (res) => res.screenSets
     });
