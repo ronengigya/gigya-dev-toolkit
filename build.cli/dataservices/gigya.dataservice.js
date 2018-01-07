@@ -100,7 +100,8 @@ var GigyaDataservice = function () {
                   includeGigyaSettings: true,
                   includeServices: true,
                   includeSiteGroupConfig: true,
-                  includeSiteID: false
+                  includeSiteID: true,
+                  includeGlobalConf: true
                 },
                 transform: function transform(res) {
                   // Normalize for empty values
@@ -346,6 +347,9 @@ var GigyaDataservice = function () {
                 _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
               }
 
+              // This is a read-only setting and trying to copy it will yield an error.
+              _.set(siteConfig, 'gigyaSettings.enableRequestLoggingUntil', undefined);
+
               // These settings are renewed because if a key already exists the basic configuration is typically static
               // You don't want to _clone_ the source key to the destination, you want to copy all settings
               if (copyEverything === false) {
@@ -359,7 +363,7 @@ var GigyaDataservice = function () {
               }
 
               // Requires 3 API calls
-              _context2.next = 11;
+              _context2.next = 12;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'admin.setSiteConfig', userKey: userKey, userSecret: userSecret, params: {
                   apiKey: apiKey,
                   description: siteConfig.description,
@@ -373,8 +377,8 @@ var GigyaDataservice = function () {
                   settings: siteConfig.settings
                 } }));
 
-            case 11:
-              _context2.next = 13;
+            case 12:
+              _context2.next = 14;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'socialize.setProvidersConfig',
                 userKey: userKey,
@@ -387,8 +391,8 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 13:
-              _context2.next = 15;
+            case 14:
+              _context2.next = 16;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'admin.setRestrictions',
                 userKey: userKey,
@@ -402,21 +406,21 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 15:
+            case 16:
               _iteratorNormalCompletion = true;
               _didIteratorError = false;
               _iteratorError = undefined;
-              _context2.prev = 18;
+              _context2.prev = 19;
               _iterator = (0, _getIterator3.default)(_.get(siteConfig, 'saml.idp.registeredIdPs', []));
 
-            case 20:
+            case 21:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                _context2.next = 27;
+                _context2.next = 28;
                 break;
               }
 
               idpConfig = _step.value;
-              _context2.next = 24;
+              _context2.next = 25;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'fidm.saml.fidm.registerIdP',
                 userKey: userKey,
@@ -427,60 +431,60 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 24:
+            case 25:
               _iteratorNormalCompletion = true;
-              _context2.next = 20;
+              _context2.next = 21;
               break;
 
-            case 27:
-              _context2.next = 33;
+            case 28:
+              _context2.next = 34;
               break;
 
-            case 29:
-              _context2.prev = 29;
-              _context2.t0 = _context2['catch'](18);
+            case 30:
+              _context2.prev = 30;
+              _context2.t0 = _context2['catch'](19);
               _didIteratorError = true;
               _iteratorError = _context2.t0;
 
-            case 33:
-              _context2.prev = 33;
+            case 34:
               _context2.prev = 34;
+              _context2.prev = 35;
 
               if (!_iteratorNormalCompletion && _iterator.return) {
                 _iterator.return();
               }
 
-            case 36:
-              _context2.prev = 36;
+            case 37:
+              _context2.prev = 37;
 
               if (!_didIteratorError) {
-                _context2.next = 39;
+                _context2.next = 40;
                 break;
               }
 
               throw _iteratorError;
 
-            case 39:
-              return _context2.finish(36);
-
             case 40:
-              return _context2.finish(33);
+              return _context2.finish(37);
 
             case 41:
+              return _context2.finish(34);
+
+            case 42:
               _iteratorNormalCompletion2 = true;
               _didIteratorError2 = false;
               _iteratorError2 = undefined;
-              _context2.prev = 44;
+              _context2.prev = 45;
               _iterator2 = (0, _getIterator3.default)(_.get(siteConfig, 'saml.sp.registeredSPs', []));
 
-            case 46:
+            case 47:
               if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-                _context2.next = 53;
+                _context2.next = 54;
                 break;
               }
 
               spConfig = _step2.value;
-              _context2.next = 50;
+              _context2.next = 51;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'fidm.saml.idp.registerSP',
                 userKey: userKey,
@@ -491,53 +495,53 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 50:
+            case 51:
               _iteratorNormalCompletion2 = true;
-              _context2.next = 46;
+              _context2.next = 47;
               break;
 
-            case 53:
-              _context2.next = 59;
+            case 54:
+              _context2.next = 60;
               break;
 
-            case 55:
-              _context2.prev = 55;
-              _context2.t1 = _context2['catch'](44);
+            case 56:
+              _context2.prev = 56;
+              _context2.t1 = _context2['catch'](45);
               _didIteratorError2 = true;
               _iteratorError2 = _context2.t1;
 
-            case 59:
-              _context2.prev = 59;
+            case 60:
               _context2.prev = 60;
+              _context2.prev = 61;
 
               if (!_iteratorNormalCompletion2 && _iterator2.return) {
                 _iterator2.return();
               }
 
-            case 62:
-              _context2.prev = 62;
+            case 63:
+              _context2.prev = 63;
 
               if (!_didIteratorError2) {
-                _context2.next = 65;
+                _context2.next = 66;
                 break;
               }
 
               throw _iteratorError2;
 
-            case 65:
-              return _context2.finish(62);
-
             case 66:
-              return _context2.finish(59);
+              return _context2.finish(63);
 
             case 67:
+              return _context2.finish(60);
+
+            case 68:
               if (!_.get(siteConfig, 'saml.idp')) {
-                _context2.next = 71;
+                _context2.next = 72;
                 break;
               }
 
               delete siteConfig.saml.idp.registeredIdPs;
-              _context2.next = 71;
+              _context2.next = 72;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'fidm.saml.setConfig',
                 userKey: userKey,
@@ -548,14 +552,14 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 71:
+            case 72:
               if (!_.get(siteConfig, 'saml.sp')) {
-                _context2.next = 75;
+                _context2.next = 76;
                 break;
               }
 
               delete siteConfig.saml.sp.registeredSPs;
-              _context2.next = 75;
+              _context2.next = 76;
               return _regenerator2.default.awrap(GigyaDataservice._api({
                 endpoint: 'fidm.saml.idp.setConfig',
                 userKey: userKey,
@@ -566,15 +570,15 @@ var GigyaDataservice = function () {
                 }
               }));
 
-            case 75:
+            case 76:
               return _context2.abrupt('return', { apiKey: apiKey });
 
-            case 76:
+            case 77:
             case 'end':
               return _context2.stop();
           }
         }
-      }, null, this, [[18, 29, 33, 41], [34,, 36, 40], [44, 55, 59, 67], [60,, 62, 66]]);
+      }, null, this, [[19, 30, 34, 42], [35,, 37, 41], [45, 56, 60, 68], [61,, 63, 67]]);
     }
   }, {
     key: 'fetchLoyaltyConfig',
@@ -833,7 +837,7 @@ var GigyaDataservice = function () {
           apiKey = _ref10.apiKey,
           schema = _ref10.schema;
 
-      var params, schemaTypes, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, schemaType, _iteratorNormalCompletion6, _didIteratorError6, _iteratorError6, _iterator6, _step6, _step6$value, key, _schema;
+      var params, _iteratorNormalCompletion5, _didIteratorError5, _iteratorError5, _iterator5, _step5, schemaType, _iteratorNormalCompletion6, _didIteratorError6, _iteratorError6, _iterator6, _step6, _step6$value, key, _schema;
 
       return _regenerator2.default.async(function updateSchema$(_context5) {
         while (1) {
@@ -846,7 +850,7 @@ var GigyaDataservice = function () {
               };
               _context5.prev = 1;
               _context5.next = 4;
-              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: params }));
+              return _regenerator2.default.awrap(GigyaDataservice._setSchemaChunked({ userKey: userKey, userSecret: userSecret, params: params }));
 
             case 4:
               _context5.next = 61;
@@ -865,14 +869,13 @@ var GigyaDataservice = function () {
               params.scope = 'site';
 
               // Only send "required" attribute.
-              schemaTypes = ['profileSchema', 'dataSchema'];
               _iteratorNormalCompletion5 = true;
               _didIteratorError5 = false;
               _iteratorError5 = undefined;
-              _context5.prev = 14;
-              _iterator5 = (0, _getIterator3.default)(schemaTypes);
+              _context5.prev = 13;
+              _iterator5 = (0, _getIterator3.default)(GigyaDataservice._schemaTypes);
 
-            case 16:
+            case 15:
               if (_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done) {
                 _context5.next = 42;
                 break;
@@ -880,18 +883,20 @@ var GigyaDataservice = function () {
 
               schemaType = _step5.value;
 
-              delete params[schemaType].dynamicSchema;
-
-              if (!(params[schemaType] && params[schemaType].fields)) {
-                _context5.next = 39;
+              if (!(!params[schemaType] || !params[schemaType].fields)) {
+                _context5.next = 19;
                 break;
               }
 
+              return _context5.abrupt('continue', 39);
+
+            case 19:
+
+              delete params[schemaType].dynamicSchema;
               _iteratorNormalCompletion6 = true;
               _didIteratorError6 = false;
               _iteratorError6 = undefined;
               _context5.prev = 23;
-
               for (_iterator6 = (0, _getIterator3.default)((0, _entries2.default)(params[schemaType].fields)); !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
                 _step6$value = (0, _slicedToArray3.default)(_step6.value, 2), key = _step6$value[0], _schema = _step6$value[1];
 
@@ -932,7 +937,7 @@ var GigyaDataservice = function () {
 
             case 39:
               _iteratorNormalCompletion5 = true;
-              _context5.next = 16;
+              _context5.next = 15;
               break;
 
             case 42:
@@ -941,7 +946,7 @@ var GigyaDataservice = function () {
 
             case 44:
               _context5.prev = 44;
-              _context5.t2 = _context5['catch'](14);
+              _context5.t2 = _context5['catch'](13);
               _didIteratorError5 = true;
               _iteratorError5 = _context5.t2;
 
@@ -971,7 +976,7 @@ var GigyaDataservice = function () {
 
             case 56:
               _context5.next = 58;
-              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: params }));
+              return _regenerator2.default.awrap(GigyaDataservice._setSchemaChunked({ userKey: userKey, userSecret: userSecret, params: params }));
 
             case 58:
               _context5.next = 61;
@@ -985,21 +990,323 @@ var GigyaDataservice = function () {
               return _context5.stop();
           }
         }
-      }, null, this, [[1, 6], [14, 44, 48, 56], [23, 27, 31, 39], [32,, 34, 38], [49,, 51, 55]]);
+      }, null, this, [[1, 6], [13, 44, 48, 56], [23, 27, 31, 39], [32,, 34, 38], [49,, 51, 55]]);
+    }
+  }, {
+    key: '_setSchemaChunked',
+    value: function _setSchemaChunked(_ref11) {
+      var userKey = _ref11.userKey,
+          userSecret = _ref11.userSecret,
+          params = _ref11.params;
+
+      var chunkSize, fields, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, schemaType, _iteratorNormalCompletion9, _didIteratorError9, _iteratorError9, _iterator9, _step9, _step9$value, _key, schema, paramsCopy, chunks, _iteratorNormalCompletion8, _didIteratorError8, _iteratorError8, _iterator8, _step8, chunk, _iteratorNormalCompletion10, _didIteratorError10, _iteratorError10, _iterator10, _step10, _schemaType, _iteratorNormalCompletion11, _didIteratorError11, _iteratorError11, _iterator11, _step11, _step11$value, _schemaType2, _key2;
+
+      return _regenerator2.default.async(function _setSchemaChunked$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              // Set schema in chunks of X fields or less to bypass General Server Errors.
+              chunkSize = 40;
+
+              // Pull all fields out into one array.
+
+              fields = [];
+              _iteratorNormalCompletion7 = true;
+              _didIteratorError7 = false;
+              _iteratorError7 = undefined;
+              _context6.prev = 5;
+              _iterator7 = (0, _getIterator3.default)(GigyaDataservice._schemaTypes);
+
+            case 7:
+              if (_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done) {
+                _context6.next = 33;
+                break;
+              }
+
+              schemaType = _step7.value;
+
+              if (!(!params[schemaType] || !params[schemaType].fields)) {
+                _context6.next = 11;
+                break;
+              }
+
+              return _context6.abrupt('continue', 30);
+
+            case 11:
+              _iteratorNormalCompletion9 = true;
+              _didIteratorError9 = false;
+              _iteratorError9 = undefined;
+              _context6.prev = 14;
+
+
+              for (_iterator9 = (0, _getIterator3.default)((0, _entries2.default)(params[schemaType].fields)); !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+                _step9$value = (0, _slicedToArray3.default)(_step9.value, 2), _key = _step9$value[0], schema = _step9$value[1];
+
+                fields.push({
+                  schemaType: schemaType,
+                  key: _key,
+                  schema: schema
+                });
+              }
+              _context6.next = 22;
+              break;
+
+            case 18:
+              _context6.prev = 18;
+              _context6.t0 = _context6['catch'](14);
+              _didIteratorError9 = true;
+              _iteratorError9 = _context6.t0;
+
+            case 22:
+              _context6.prev = 22;
+              _context6.prev = 23;
+
+              if (!_iteratorNormalCompletion9 && _iterator9.return) {
+                _iterator9.return();
+              }
+
+            case 25:
+              _context6.prev = 25;
+
+              if (!_didIteratorError9) {
+                _context6.next = 28;
+                break;
+              }
+
+              throw _iteratorError9;
+
+            case 28:
+              return _context6.finish(25);
+
+            case 29:
+              return _context6.finish(22);
+
+            case 30:
+              _iteratorNormalCompletion7 = true;
+              _context6.next = 7;
+              break;
+
+            case 33:
+              _context6.next = 39;
+              break;
+
+            case 35:
+              _context6.prev = 35;
+              _context6.t1 = _context6['catch'](5);
+              _didIteratorError7 = true;
+              _iteratorError7 = _context6.t1;
+
+            case 39:
+              _context6.prev = 39;
+              _context6.prev = 40;
+
+              if (!_iteratorNormalCompletion7 && _iterator7.return) {
+                _iterator7.return();
+              }
+
+            case 42:
+              _context6.prev = 42;
+
+              if (!_didIteratorError7) {
+                _context6.next = 45;
+                break;
+              }
+
+              throw _iteratorError7;
+
+            case 45:
+              return _context6.finish(42);
+
+            case 46:
+              return _context6.finish(39);
+
+            case 47:
+              paramsCopy = _.cloneDeep(params);
+              chunks = _.chunk(fields, chunkSize);
+              _iteratorNormalCompletion8 = true;
+              _didIteratorError8 = false;
+              _iteratorError8 = undefined;
+              _context6.prev = 52;
+              _iterator8 = (0, _getIterator3.default)(chunks);
+
+            case 54:
+              if (_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done) {
+                _context6.next = 107;
+                break;
+              }
+
+              chunk = _step8.value;
+              _iteratorNormalCompletion10 = true;
+              _didIteratorError10 = false;
+              _iteratorError10 = undefined;
+              _context6.prev = 59;
+              _iterator10 = (0, _getIterator3.default)(GigyaDataservice._schemaTypes);
+
+            case 61:
+              if (_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done) {
+                _context6.next = 69;
+                break;
+              }
+
+              _schemaType = _step10.value;
+
+              if (!(!paramsCopy[_schemaType] || !paramsCopy[_schemaType].fields)) {
+                _context6.next = 65;
+                break;
+              }
+
+              return _context6.abrupt('continue', 66);
+
+            case 65:
+              paramsCopy[_schemaType].fields = {};
+
+            case 66:
+              _iteratorNormalCompletion10 = true;
+              _context6.next = 61;
+              break;
+
+            case 69:
+              _context6.next = 75;
+              break;
+
+            case 71:
+              _context6.prev = 71;
+              _context6.t2 = _context6['catch'](59);
+              _didIteratorError10 = true;
+              _iteratorError10 = _context6.t2;
+
+            case 75:
+              _context6.prev = 75;
+              _context6.prev = 76;
+
+              if (!_iteratorNormalCompletion10 && _iterator10.return) {
+                _iterator10.return();
+              }
+
+            case 78:
+              _context6.prev = 78;
+
+              if (!_didIteratorError10) {
+                _context6.next = 81;
+                break;
+              }
+
+              throw _iteratorError10;
+
+            case 81:
+              return _context6.finish(78);
+
+            case 82:
+              return _context6.finish(75);
+
+            case 83:
+              _iteratorNormalCompletion11 = true;
+              _didIteratorError11 = false;
+              _iteratorError11 = undefined;
+              _context6.prev = 86;
+
+
+              for (_iterator11 = (0, _getIterator3.default)(chunk); !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+                _step11$value = _step11.value, _schemaType2 = _step11$value.schemaType, _key2 = _step11$value.key, schema = _step11$value.schema;
+
+                paramsCopy[_schemaType2].fields[_key2] = schema;
+              }
+              _context6.next = 94;
+              break;
+
+            case 90:
+              _context6.prev = 90;
+              _context6.t3 = _context6['catch'](86);
+              _didIteratorError11 = true;
+              _iteratorError11 = _context6.t3;
+
+            case 94:
+              _context6.prev = 94;
+              _context6.prev = 95;
+
+              if (!_iteratorNormalCompletion11 && _iterator11.return) {
+                _iterator11.return();
+              }
+
+            case 97:
+              _context6.prev = 97;
+
+              if (!_didIteratorError11) {
+                _context6.next = 100;
+                break;
+              }
+
+              throw _iteratorError11;
+
+            case 100:
+              return _context6.finish(97);
+
+            case 101:
+              return _context6.finish(94);
+
+            case 102:
+              _context6.next = 104;
+              return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey: userKey, userSecret: userSecret, params: paramsCopy }));
+
+            case 104:
+              _iteratorNormalCompletion8 = true;
+              _context6.next = 54;
+              break;
+
+            case 107:
+              _context6.next = 113;
+              break;
+
+            case 109:
+              _context6.prev = 109;
+              _context6.t4 = _context6['catch'](52);
+              _didIteratorError8 = true;
+              _iteratorError8 = _context6.t4;
+
+            case 113:
+              _context6.prev = 113;
+              _context6.prev = 114;
+
+              if (!_iteratorNormalCompletion8 && _iterator8.return) {
+                _iterator8.return();
+              }
+
+            case 116:
+              _context6.prev = 116;
+
+              if (!_didIteratorError8) {
+                _context6.next = 119;
+                break;
+              }
+
+              throw _iteratorError8;
+
+            case 119:
+              return _context6.finish(116);
+
+            case 120:
+              return _context6.finish(113);
+
+            case 121:
+            case 'end':
+              return _context6.stop();
+          }
+        }
+      }, null, this, [[5, 35, 39, 47], [14, 18, 22, 30], [23,, 25, 29], [40,, 42, 46], [52, 109, 113, 121], [59, 71, 75, 83], [76,, 78, 82], [86, 90, 94, 102], [95,, 97, 101], [114,, 116, 120]]);
     }
   }, {
     key: 'updatePolicies',
-    value: function updatePolicies(_ref11) {
-      var userKey = _ref11.userKey,
-          userSecret = _ref11.userSecret,
-          apiKey = _ref11.apiKey,
-          policies = _ref11.policies;
+    value: function updatePolicies(_ref12) {
+      var userKey = _ref12.userKey,
+          userSecret = _ref12.userSecret,
+          apiKey = _ref12.apiKey,
+          policies = _ref12.policies;
 
-      var params, keysToRemove, _iteratorNormalCompletion7, _didIteratorError7, _iteratorError7, _iterator7, _step7, keyToRemove;
+      var params, keysToRemove, _iteratorNormalCompletion12, _didIteratorError12, _iteratorError12, _iterator12, _step12, keyToRemove;
 
-      return _regenerator2.default.async(function updatePolicies$(_context6) {
+      return _regenerator2.default.async(function updatePolicies$(_context7) {
         while (1) {
-          switch (_context6.prev = _context6.next) {
+          switch (_context7.prev = _context7.next) {
             case 0:
               params = _.extend({}, policies, { apiKey: apiKey });
 
@@ -1013,95 +1320,95 @@ var GigyaDataservice = function () {
                 delete params.security.ipLockout;
               }
 
-              _context6.prev = 3;
-              _context6.next = 6;
+              _context7.prev = 3;
+              _context7.next = 6;
               return _regenerator2.default.awrap(GigyaDataservice._api({ endpoint: 'accounts.setPolicies', userKey: userKey, userSecret: userSecret, params: params }));
 
             case 6:
-              _context6.next = 36;
+              _context7.next = 36;
               break;
 
             case 8:
-              _context6.prev = 8;
-              _context6.t0 = _context6['catch'](3);
+              _context7.prev = 8;
+              _context7.t0 = _context7['catch'](3);
 
-              if (!(_context6.t0.code === 400006 && _context6.t0.message.indexOf('Member sites may not override') !== -1)) {
-                _context6.next = 35;
+              if (!(_context7.t0.code === 400006 && _context7.t0.message.indexOf('Member sites may not override') !== -1)) {
+                _context7.next = 35;
                 break;
               }
 
               // Remove group-level policies by parsing error message for keys to remove and try again.
-              keysToRemove = _context6.t0.message.substring(_context6.t0.message.indexOf('(') + 1, _context6.t0.message.indexOf(')')).split(',');
-              _iteratorNormalCompletion7 = true;
-              _didIteratorError7 = false;
-              _iteratorError7 = undefined;
-              _context6.prev = 15;
+              keysToRemove = _context7.t0.message.substring(_context7.t0.message.indexOf('(') + 1, _context7.t0.message.indexOf(')')).split(',');
+              _iteratorNormalCompletion12 = true;
+              _didIteratorError12 = false;
+              _iteratorError12 = undefined;
+              _context7.prev = 15;
 
-              for (_iterator7 = (0, _getIterator3.default)(keysToRemove); !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-                keyToRemove = _step7.value;
+              for (_iterator12 = (0, _getIterator3.default)(keysToRemove); !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+                keyToRemove = _step12.value;
 
                 _.set(params, keyToRemove, undefined);
               }
 
               // We may need multiple rounds to remove all offending policies.
-              _context6.next = 23;
+              _context7.next = 23;
               break;
 
             case 19:
-              _context6.prev = 19;
-              _context6.t1 = _context6['catch'](15);
-              _didIteratorError7 = true;
-              _iteratorError7 = _context6.t1;
+              _context7.prev = 19;
+              _context7.t1 = _context7['catch'](15);
+              _didIteratorError12 = true;
+              _iteratorError12 = _context7.t1;
 
             case 23:
-              _context6.prev = 23;
-              _context6.prev = 24;
+              _context7.prev = 23;
+              _context7.prev = 24;
 
-              if (!_iteratorNormalCompletion7 && _iterator7.return) {
-                _iterator7.return();
+              if (!_iteratorNormalCompletion12 && _iterator12.return) {
+                _iterator12.return();
               }
 
             case 26:
-              _context6.prev = 26;
+              _context7.prev = 26;
 
-              if (!_didIteratorError7) {
-                _context6.next = 29;
+              if (!_didIteratorError12) {
+                _context7.next = 29;
                 break;
               }
 
-              throw _iteratorError7;
+              throw _iteratorError12;
 
             case 29:
-              return _context6.finish(26);
+              return _context7.finish(26);
 
             case 30:
-              return _context6.finish(23);
+              return _context7.finish(23);
 
             case 31:
-              _context6.next = 33;
+              _context7.next = 33;
               return _regenerator2.default.awrap(this.updatePolicies({ userKey: userKey, userSecret: userSecret, apiKey: apiKey, policies: params }));
 
             case 33:
-              _context6.next = 36;
+              _context7.next = 36;
               break;
 
             case 35:
-              throw _context6.t0;
+              throw _context7.t0;
 
             case 36:
             case 'end':
-              return _context6.stop();
+              return _context7.stop();
           }
         }
       }, null, this, [[3, 8], [15, 19, 23, 31], [24,, 26, 30]]);
     }
   }, {
     key: 'updateScreenSets',
-    value: function updateScreenSets(_ref12) {
-      var userKey = _ref12.userKey,
-          userSecret = _ref12.userSecret,
-          apiKey = _ref12.apiKey,
-          screenSets = _ref12.screenSets;
+    value: function updateScreenSets(_ref13) {
+      var userKey = _ref13.userKey,
+          userSecret = _ref13.userSecret,
+          apiKey = _ref13.apiKey,
+          screenSets = _ref13.screenSets;
 
       var promises = [];
       _.each(screenSets, function (params) {
@@ -1112,15 +1419,15 @@ var GigyaDataservice = function () {
     }
   }, {
     key: '_api',
-    value: function _api(_ref13) {
-      var apiDomain = _ref13.apiDomain,
-          endpoint = _ref13.endpoint,
-          userKey = _ref13.userKey,
-          userSecret = _ref13.userSecret,
-          params = _ref13.params,
-          transform = _ref13.transform,
-          _ref13$isUseCache = _ref13.isUseCache,
-          isUseCache = _ref13$isUseCache === undefined ? false : _ref13$isUseCache;
+    value: function _api(_ref14) {
+      var apiDomain = _ref14.apiDomain,
+          endpoint = _ref14.endpoint,
+          userKey = _ref14.userKey,
+          userSecret = _ref14.userSecret,
+          params = _ref14.params,
+          transform = _ref14.transform,
+          _ref14$isUseCache = _ref14.isUseCache,
+          isUseCache = _ref14$isUseCache === undefined ? false : _ref14$isUseCache;
 
       return new _promise2.default(function (resolve, reject) {
         params = params ? _.cloneDeep(params) : {};
@@ -1129,35 +1436,35 @@ var GigyaDataservice = function () {
         params.secret = userSecret;
 
         // Serialize objects as JSON strings
-        var _iteratorNormalCompletion8 = true;
-        var _didIteratorError8 = false;
-        var _iteratorError8 = undefined;
+        var _iteratorNormalCompletion13 = true;
+        var _didIteratorError13 = false;
+        var _iteratorError13 = undefined;
 
         try {
-          for (var _iterator8 = (0, _getIterator3.default)((0, _entries2.default)(params)), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var _step8$value = (0, _slicedToArray3.default)(_step8.value, 2),
-                _key = _step8$value[0],
-                param = _step8$value[1];
+          for (var _iterator13 = (0, _getIterator3.default)((0, _entries2.default)(params)), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+            var _step13$value = (0, _slicedToArray3.default)(_step13.value, 2),
+                _key3 = _step13$value[0],
+                param = _step13$value[1];
 
             if (_.isObject(param)) {
-              params[_key] = (0, _stringify2.default)(param);
+              params[_key3] = (0, _stringify2.default)(param);
             } else if (param === null) {
-              params[_key] = 'null';
+              params[_key3] = 'null';
             } else if (param === undefined) {
-              delete params[_key];
+              delete params[_key3];
             }
           }
         } catch (err) {
-          _didIteratorError8 = true;
-          _iteratorError8 = err;
+          _didIteratorError13 = true;
+          _iteratorError13 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion8 && _iterator8.return) {
-              _iterator8.return();
+            if (!_iteratorNormalCompletion13 && _iterator13.return) {
+              _iterator13.return();
             }
           } finally {
-            if (_didIteratorError8) {
-              throw _iteratorError8;
+            if (_didIteratorError13) {
+              throw _iteratorError13;
             }
           }
         }
@@ -1178,7 +1485,7 @@ var GigyaDataservice = function () {
         var namespace = endpoint.substring(0, endpoint.indexOf('.'));
         var url = 'https://' + namespace + '.' + apiDomain + '/' + endpoint;
 
-        console.log(url + '?' + require('querystring').stringify(params));
+        // console.log(url + '?' + require('querystring').stringify(params));
 
         // Create cache key
         var cacheKey = isUseCache ? url + (0, _stringify2.default)(params) : undefined;
@@ -1281,6 +1588,7 @@ var GigyaDataservice = function () {
 
 GigyaDataservice._cacheMap = new _map2.default();
 GigyaDataservice._apiDomainMap = new _map2.default();
+GigyaDataservice._schemaTypes = ['profileSchema', 'dataSchema', 'subscriptionsSchema', 'preferencesSchema'];
 GigyaDataservice.defaultAPIDomain = 'us1.gigya.com';
 
 

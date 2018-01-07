@@ -6,6 +6,7 @@ const _ = require('lodash');
 class GigyaDataservice {
   static _cacheMap = new Map();
   static _apiDomainMap = new Map();
+  static _schemaTypes = ['profileSchema', 'dataSchema', 'subscriptionsSchema', 'preferencesSchema'];
   static defaultAPIDomain = 'us1.gigya.com';
 
   static fetchPartner({ userKey, userSecret, partnerID }) {
@@ -40,7 +41,8 @@ class GigyaDataservice {
         includeGigyaSettings: true,
         includeServices: true,
         includeSiteGroupConfig: true,
-        includeSiteID: false
+        includeSiteID: true,
+        includeGlobalConf: true
       },
       transform: (res) => {
         // Normalize for empty values
@@ -199,6 +201,9 @@ class GigyaDataservice {
     if(siteConfig.siteGroupOwner) {
       _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
     }
+
+    // This is a read-only setting and trying to copy it will yield an error.
+    _.set(siteConfig, 'gigyaSettings.enableRequestLoggingUntil', undefined);
 
     // These settings are renewed because if a key already exists the basic configuration is typically static
     // You don't want to _clone_ the source key to the destination, you want to copy all settings
@@ -401,7 +406,7 @@ class GigyaDataservice {
       dataSchema: schema.dataSchema
     };
     try {
-      await GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey, userSecret, params });
+      await GigyaDataservice._setSchemaChunked({ userKey, userSecret, params });
     } catch(e) {
       // "Group member site can change required field only in site scope."
       // Submit schema on site scope in case of this error.
@@ -410,21 +415,59 @@ class GigyaDataservice {
         params.scope = 'site';
 
         // Only send "required" attribute.
-        const schemaTypes = ['profileSchema', 'dataSchema'];
-        for(const schemaType of schemaTypes) {
+        for(const schemaType of GigyaDataservice._schemaTypes) {
+          if (!params[schemaType] || !params[schemaType].fields) {
+            continue;
+          }
+
           delete params[schemaType].dynamicSchema;
-          if(params[schemaType] && params[schemaType].fields) {
-            for(const [key, schema] of Object.entries(params[schemaType].fields)) {
-              params[schemaType].fields[key] = { required: schema.required };
-            }
+          for(const [key, schema] of Object.entries(params[schemaType].fields)) {
+            params[schemaType].fields[key] = { required: schema.required };
           }
         }
 
         // Re-send request.
-        await GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey, userSecret, params });
+        await GigyaDataservice._setSchemaChunked({ userKey, userSecret, params });
       } else {
         throw e;
       }
+    }
+  }
+
+  static async _setSchemaChunked({ userKey, userSecret, params }) {
+    // Set schema in chunks of X fields or less to bypass General Server Errors.
+    const chunkSize = 40;
+
+    // Pull all fields out into one array.
+    const fields = [];
+    for(const schemaType of GigyaDataservice._schemaTypes) {
+      if(!params[schemaType] || !params[schemaType].fields) {
+        continue;
+      }
+      
+      for(const [key, schema] of Object.entries(params[schemaType].fields)) {
+        fields.push({
+          schemaType,
+          key,
+          schema
+        })
+      }
+    }
+
+    const paramsCopy = _.cloneDeep(params);
+    const chunks = _.chunk(fields, chunkSize);
+    for(const chunk of chunks) {
+      for(const schemaType of GigyaDataservice._schemaTypes) {
+        if(!paramsCopy[schemaType] || !paramsCopy[schemaType].fields) {
+          continue;
+        }
+        paramsCopy[schemaType].fields = {};
+      }
+
+      for(const { schemaType, key, schema } of chunk) {
+        paramsCopy[schemaType].fields[key] = schema;
+      }
+      await GigyaDataservice._api({ endpoint: 'accounts.setSchema', userKey, userSecret, params: paramsCopy });
     }
   }
 
@@ -505,7 +548,7 @@ class GigyaDataservice {
       const namespace = endpoint.substring(0, endpoint.indexOf('.'));
       let url = `https://${namespace}.${apiDomain}/${endpoint}`;
 
-      console.log(url + '?' + require('querystring').stringify(params));
+      // console.log(url + '?' + require('querystring').stringify(params));
 
       // Create cache key
       const cacheKey = isUseCache ? url + JSON.stringify(params) : undefined;
