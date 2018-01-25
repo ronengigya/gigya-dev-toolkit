@@ -228,7 +228,8 @@ class GigyaDataservice {
       trustedShareURLs: siteConfig.trustedShareURLs,
       logoutURL: siteConfig.logoutURL,
       siteGroupOwner: siteConfig.siteGroupOwner,
-      settings: siteConfig.settings
+      settings: siteConfig.settings,
+      tags : siteConfig.tags
     } });
     await GigyaDataservice._api({
       endpoint: 'socialize.setProvidersConfig',
