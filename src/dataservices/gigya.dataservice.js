@@ -229,7 +229,9 @@ class GigyaDataservice {
       logoutURL: siteConfig.logoutURL,
       siteGroupOwner: siteConfig.siteGroupOwner,
       settings: siteConfig.settings,
-      tags : siteConfig.tags
+      tags : siteConfig.tags,
+      invisibleRecaptcha : siteConfig.invisibleRecaptcha,
+      recapchaV2 : siteConfig.recapchaV2,
     } });
     await GigyaDataservice._api({
       endpoint: 'socialize.setProvidersConfig',
@@ -404,7 +406,10 @@ class GigyaDataservice {
     const params = {
       apiKey,
       profileSchema: schema.profileSchema,
-      dataSchema: schema.dataSchema
+      dataSchema: schema.dataSchema,
+      subscriptionsSchema: schema.subscriptionsSchema,
+      preferencesSchema : schema.preferencesSchema
+
     };
     try {
       await GigyaDataservice._setSchemaChunked({ userKey, userSecret, params });
