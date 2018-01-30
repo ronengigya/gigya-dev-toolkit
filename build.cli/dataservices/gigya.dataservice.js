@@ -374,7 +374,10 @@ var GigyaDataservice = function () {
                   trustedShareURLs: siteConfig.trustedShareURLs,
                   logoutURL: siteConfig.logoutURL,
                   siteGroupOwner: siteConfig.siteGroupOwner,
-                  settings: siteConfig.settings
+                  settings: siteConfig.settings,
+                  tags: siteConfig.tags,
+                  invisibleRecaptcha: siteConfig.invisibleRecaptcha,
+                  recapchaV2: siteConfig.recapchaV2
                 } }));
 
             case 12:
@@ -846,7 +849,10 @@ var GigyaDataservice = function () {
               params = {
                 apiKey: apiKey,
                 profileSchema: schema.profileSchema,
-                dataSchema: schema.dataSchema
+                dataSchema: schema.dataSchema,
+                subscriptionsSchema: schema.subscriptionsSchema,
+                preferencesSchema: schema.preferencesSchema
+
               };
               _context5.prev = 1;
               _context5.next = 4;
