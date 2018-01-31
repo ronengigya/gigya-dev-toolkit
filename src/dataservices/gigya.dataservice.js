@@ -1,7 +1,10 @@
 'use strict';
 
 const superagent = require('superagent');
+require('superagent-proxy')(request);
+
 const _ = require('lodash');
+const localFiddlerProxy = 'http://127.0.0.1:8888';
 
 class GigyaDataservice {
   static _cacheMap = new Map();
@@ -198,13 +201,14 @@ class GigyaDataservice {
     }
 
     // If the siteConfig is for a child site, the database shouldn't be active
-    if(siteConfig.siteGroupOwner) {
+    if(siteConfig.siteGroupOwner && siteConfig.gigyaSettings) {
       _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
     }
 
-    // This is a read-only setting and trying to copy it will yield an error.
-    _.set(siteConfig, 'gigyaSettings.enableRequestLoggingUntil', undefined);
-
+    if(siteConfig.gigyaSettings && siteConfig.gigyaSettings.enableRequestLoggingUntil) {
+        // This is a read-only setting and trying to copy it will yield an error.
+        _.set(siteConfig, 'gigyaSettings.enableRequestLoggingUntil', undefined);
+    }
     // These settings are renewed because if a key already exists the basic configuration is typically static
     // You don't want to _clone_ the source key to the destination, you want to copy all settings
     if(copyEverything === false) {
@@ -232,6 +236,7 @@ class GigyaDataservice {
       tags : siteConfig.tags,
       invisibleRecaptcha : siteConfig.invisibleRecaptcha,
       recapchaV2 : siteConfig.recapchaV2,
+      globalConf : siteConfig.globalConf
     } });
     await GigyaDataservice._api({
       endpoint: 'socialize.setProvidersConfig',
@@ -575,7 +580,7 @@ class GigyaDataservice {
       // Fire request
       superagent.post(url)
         .type('form')
-        .send(params)
+        .send(params).proxy(localFiddlerProxy)
         .end((err, res) => {
           try {
             // Check for network error
