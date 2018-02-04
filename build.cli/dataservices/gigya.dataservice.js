@@ -343,13 +343,14 @@ var GigyaDataservice = function () {
             case 7:
 
               // If the siteConfig is for a child site, the database shouldn't be active
-              if (siteConfig.siteGroupOwner) {
+              if (siteConfig.siteGroupOwner && siteConfig.gigyaSettings) {
                 _.set(siteConfig, 'gigyaSettings.dsSize', undefined);
               }
 
-              // This is a read-only setting and trying to copy it will yield an error.
-              _.set(siteConfig, 'gigyaSettings.enableRequestLoggingUntil', undefined);
-
+              if (siteConfig.gigyaSettings && siteConfig.gigyaSettings.enableRequestLoggingUntil) {
+                // This is a read-only setting and trying to copy it will yield an error.
+                _.set(siteConfig, 'gigyaSettings.enableRequestLoggingUntil', undefined);
+              }
               // These settings are renewed because if a key already exists the basic configuration is typically static
               // You don't want to _clone_ the source key to the destination, you want to copy all settings
               if (copyEverything === false) {
@@ -377,7 +378,8 @@ var GigyaDataservice = function () {
                   settings: siteConfig.settings,
                   tags: siteConfig.tags,
                   invisibleRecaptcha: siteConfig.invisibleRecaptcha,
-                  recapchaV2: siteConfig.recapchaV2
+                  recapchaV2: siteConfig.recapchaV2,
+                  globalConf: siteConfig.globalConf
                 } }));
 
             case 12:
