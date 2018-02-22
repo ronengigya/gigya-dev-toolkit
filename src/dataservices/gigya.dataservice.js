@@ -1,7 +1,7 @@
 'use strict';
 
 const superagent = require('superagent');
-require('superagent-proxy')(request);
+require('superagent-proxy')(superagent);
 
 const _ = require('lodash');
 const localFiddlerProxy = 'http://127.0.0.1:8888';
