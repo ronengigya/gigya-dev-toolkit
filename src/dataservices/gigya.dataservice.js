@@ -236,7 +236,9 @@ class GigyaDataservice {
       tags : siteConfig.tags,
       invisibleRecaptcha : siteConfig.invisibleRecaptcha,
       recapchaV2 : siteConfig.recapchaV2,
-      globalConf : siteConfig.globalConf
+      globalConf : siteConfig.globalConf,
+      siteGroupConfig : siteConfig.siteGroupConfig
+
     } });
     await GigyaDataservice._api({
       endpoint: 'socialize.setProvidersConfig',
