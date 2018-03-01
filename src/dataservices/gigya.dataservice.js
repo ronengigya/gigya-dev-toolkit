@@ -1,10 +1,10 @@
 'use strict';
 
 const superagent = require('superagent');
-require('superagent-proxy')(superagent);
+// require('superagent-proxy')(superagent);
 
 const _ = require('lodash');
-const localFiddlerProxy = 'http://127.0.0.1:8888';
+// const localFiddlerProxy = 'http://127.0.0.1:8888';
 
 class GigyaDataservice {
   static _cacheMap = new Map();
@@ -579,10 +579,12 @@ class GigyaDataservice {
         url = 'proxy/' + encodeURIComponent(encodeURIComponent(url));
       }
 
+
+      //.send(params).proxy(localFiddlerProxy) ( replace if fiddler is needed).
       // Fire request
       superagent.post(url)
         .type('form')
-        .send(params).proxy(localFiddlerProxy)
+        .send(params)
         .end((err, res) => {
           try {
             // Check for network error
